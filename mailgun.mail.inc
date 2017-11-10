@@ -102,7 +102,27 @@ class MailgunMailSystem implements MailSystemInterface {
     if (!empty($message['params']['attachments'])) {
       $params['attachments'] = array();
       foreach ($message['params']['attachments'] as $attachment) {
-        if (file_exists($attachment)) {
+        if (is_array($attachment)) {
+          // filecontent attachment key can be used by MimeMail as data of the related file
+          if (array_key_exists('filecontent', $attachment)) {
+            $temp_file = tmpfile();
+            fwrite($temp_file, $attachment['filecontent']);
+            $temp_f_meta_data = stream_get_meta_data($temp_file);
+            $_attachment = ['filePath' => $temp_f_meta_data['uri']];
+            if (array_key_exists('filename', $attachment)) {
+              $_attachment['remoteName'] = $attachment['filename'];
+            }
+            $params['attachments'][] = $_attachment;
+          }
+          elseif (array_key_exists('filepath', $attachment) && file_exists($attachment['filepath'])) {
+            $_attachment = ['filePath' => $attachment['filepath']];
+            if (array_key_exists('filename', $attachment)) {
+              $_attachment['remoteName'] = $attachment['filename'];
+            }
+            $params['attachments'][] = $_attachment;
+          }
+        }
+        elseif (file_exists($attachment)) {
           $params['attachments'][] = $attachment;
         }
       }
