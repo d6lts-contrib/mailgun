@@ -74,8 +74,6 @@ class MailgunMail implements MailInterface {
       $mailgun_message['bcc'] = $message['params']['bcc'];
     }
 
-    $params = [];
-
     // TODO: fix the following with configuration.
     //  Populate default settings.
     //  $variable = variable_get('mailgun_tracking', 'default')
@@ -109,25 +107,23 @@ class MailgunMail implements MailInterface {
       $allowed = (in_array($key, $allowed_params)) ? TRUE : FALSE;
 
       if ($allowed) {
-        $params[$key] = $value;
+        $mailgun_message[$key] = $value;
       }
       // Check for custom MIME headers or custom JSON data.
       if (substr($key, 0, 2) == 'h:' || substr($key, 0, 2) == 'v:') {
-        $params[$key] = $value;
+        $mailgun_message[$key] = $value;
       }
     }
 
     // Make sure the files provided in the attachments array exist.
     if (!empty($message['params']['attachments'])) {
-      $params['attachments'] = [];
+      $mailgun_message['attachments'] = [];
       foreach ($message['params']['attachments'] as $attachment) {
         if (file_exists($attachment)) {
-          $params['attachments'][] = $attachment;
+          $mailgun_message['attachments'][] = $attachment;
         }
       }
     }
-
-    $mailgun_message['params'] = $params;
 
     // TODO: enable queueing of message.
     // Queue the message if the setting is enabled.
