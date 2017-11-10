@@ -70,14 +70,13 @@ class DrupalMailgun extends Mailgun {
 
     $this->apiKey = $this->config->get('api_key');
     $this->apiEndpoint = $this->config->get('api_endpoint');
+    $this->apiVersion = $this->config->get('api_version');
 
-    // @TODO: Do we need apiVersion and ssl to be user editable?
-    $this->apiVersion = 'v2';
+    // TODO: Should we get SSL from config as well?
     $this->ssl = TRUE;
 
     $this->workingDomain = $this->config->get('working_domain');
     $this->debugMode = $this->config->get('debug_mode');
-
 
     /* @var LoggerInterface logger */
     $this->logger = \Drupal::logger('mailgun');

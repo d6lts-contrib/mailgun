@@ -51,6 +51,13 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('api_key'),
     ];
 
+    $form['working_domain'] = [
+      '#title' => $this->t('Mailgun API Working Domain'),
+      '#type' => 'textfield',
+      '#description' => $this->t('Enter your API working domain.'),
+      '#default_value' => $config->get('working_domain'),
+    ];
+
     $form['api_endpoint'] = [
       '#title' => $this->t('Mailgun API Endpoint'),
       '#type' => 'textfield',
@@ -58,11 +65,12 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('api_endpoint'),
     ];
 
-    $form['working_domain'] = [
-      '#title' => $this->t('Mailgun API Working Domain'),
+    $form['api_version'] = [
+      '#title' => t('Mailgun API Version'),
       '#type' => 'textfield',
-      '#description' => $this->t('Enter your API working domain.'),
-      '#default_value' => $config->get('working_domain'),
+      '#description' => t('Enter Mailgun API version.'),
+      '#default_value' => $config->get('api_version'),
+      '#size' => 1,
     ];
 
     $form['debug_mode'] = [
@@ -89,6 +97,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
     $this->config('mailgun.adminsettings')
       ->set('api_key', $form_state->getValue('api_key'))
       ->set('api_endpoint', $form_state->getValue('api_endpoint'))
+      ->set('api_version', $form_state->getValue('api_version'))
       ->set('working_domain', $form_state->getValue('working_domain'))
       ->set('debug_mode', $form_state->getValue('debug_mode'))
       ->save();

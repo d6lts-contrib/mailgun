@@ -1,5 +1,6 @@
 api_classname: \Drupal\mailgun\DrupalMailgun
 api_key: ''
-api_endpoint: ''
+api_endpoint: 'api.mailgun.net'
+api_version: 'v3'
 working_domain: ''
 debug_mode: true
