@@ -33,15 +33,15 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    
+
     $config = $this->config('mailgun.adminsettings');
 
     $url = Url::fromUri('https://mailgun.com/app/domains');
     $link = \Drupal::l($this->t('mailgun.com/app/domains'), $url);
-    
+
     $form['description'] =
       [
-        '#markup' => "Please refer to $link for your settings."
+        '#markup' => "Please refer to $link for your settings.",
       ];
 
     $form['api_key'] = [

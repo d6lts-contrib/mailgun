@@ -32,12 +32,13 @@ class MailgunMail implements MailInterface {
       $message['body'] = implode("\n\n", $message['body']);
     }
 
-    // todo fix this after adding configuration page
-//    // If a text format is specified in Mailgun settings, run the message through it.
-//    $format = variable_get('mailgun_format', '_none');
-//    if ($format != '_none') {
-//      $message['body'] = check_markup($message['body'], $format);
-//    }
+    // TODO: fix this after adding configuration page.
+    // If a text format is specified in Mailgun settings,
+    // run the message through it.
+    // $format = variable_get('mailgun_format', '_none');
+    // if ($format != '_none') {
+    // $message['body'] = check_markup($message['body'], $format);
+    // }
 
     return $message;
   }
@@ -45,14 +46,15 @@ class MailgunMail implements MailInterface {
   /**
    * Send the e-mail message.
    *
-   * @see drupal_mail()
-   * @see https://documentation.mailgun.com/api-sending.html#sending
-   *
    * @param array $message
-   *   A message array, as described in hook_mail_alter(). $message['params'] may contain additional parameters. See mailgun_send().
+   *   A message array, as described in hook_mail_alter().
+   *   $message['params'] may contain additional parameters. See mailgun_send().
    *
    * @return bool
    *   TRUE if the mail was successfully accepted or queued, FALSE otherwise.
+   *
+   * @see drupal_mail()
+   * @see https://documentation.mailgun.com/api-sending.html#sending
    */
   public function mail(array $message) {
     // Build the Mailgun message array.
@@ -74,28 +76,38 @@ class MailgunMail implements MailInterface {
 
     $params = [];
 
-    // todo fix the following with configuration
-//    // Populate default settings.
-//    $variable = variable_get('mailgun_tracking', 'default')
-//    if ($variable != 'default') {
-//      $params['o:tracking'] = $variable;
-//    }
-//    $variable = variable_get('mailgun_tracking_clicks', 'default')
-//    if ($variable != 'default') {
-//      $params['o:tracking-clicks'] = $variable;
-//    }
-//    $variable = variable_get('mailgun_tracking_opens', 'default')
-//    if ($variable != 'default') {
-//      $params['o:tracking-opens'] = $variable;
-//    }
+    // TODO: fix the following with configuration.
+    //  Populate default settings.
+    //  $variable = variable_get('mailgun_tracking', 'default')
+    //  if ($variable != 'default') {
+    //    $params['o:tracking'] = $variable;
+    //  }
+    //  $variable = variable_get('mailgun_tracking_clicks', 'default')
+    //  if ($variable != 'default') {
+    //    $params['o:tracking-clicks'] = $variable;
+    //  }
+    //  $variable = variable_get('mailgun_tracking_opens', 'default')
+    //  if ($variable != 'default') {
+    //    $params['o:tracking-opens'] = $variable;
+    //  }
 
-    // For a full list of allowed parameters, see: https://documentation.mailgun.com/api-sending.html#sending.
-    $allowed_params = ['o:tag', 'o:campaign', 'o:deliverytime', 'o:dkim', 'o:testmode', 'o:tracking', 'o:tracking-clicks', 'o:tracking-opens'];
+    // For a full list of allowed parameters,
+    // see: https://documentation.mailgun.com/api-sending.html#sending.
+    $allowed_params = [
+      'o:tag',
+      'o:campaign',
+      'o:deliverytime',
+      'o:dkim',
+      'o:testmode',
+      'o:tracking',
+      'o:tracking-clicks',
+      'o:tracking-opens',
+    ];
+
     foreach ($message['params'] as $key => $value) {
       // Check if it's one of the known parameters.
       $allowed = (in_array($key, $allowed_params)) ? TRUE : FALSE;
-      // If more options become available but are not yet supported by the module, uncomment the following line.
-      //$allowed = (substr($key, 0, 2) == 'o:') ? TRUE : FALSE;
+
       if ($allowed) {
         $params[$key] = $value;
       }
@@ -117,16 +129,16 @@ class MailgunMail implements MailInterface {
 
     $mailgun_message['params'] = $params;
 
-    // todo enable queueing of message
-//    // Queue the message if the setting is enabled.
-//    if (variable_get('mailgun_queue', FALSE)) {
-//      $queue = DrupalQueue::get('mailgun_queue', TRUE);
-//      $queue->createItem($mailgun_message);
-//      return TRUE;
-//    }
+    // TODO: enable queueing of message.
+    // Queue the message if the setting is enabled.
+    // if (variable_get('mailgun_queue', FALSE)) {
+    // $queue = DrupalQueue::get('mailgun_queue', TRUE);
+    // $queue->createItem($mailgun_message);
+    // return TRUE;
+    // }
 
     $mailgun = new DrupalMailgun();
-    
     return $mailgun->send($mailgun_message);
   }
+
 }

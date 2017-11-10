@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains mailgun.module..
+ * Contains mailgun.module.
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
