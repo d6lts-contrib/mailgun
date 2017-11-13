@@ -17,9 +17,8 @@
  *   An array containing form items to place on the module settings page.
  */
 function mailgun_admin_settings($form, &$form_state) {
-  $library = libraries_detect('mailgun');
-
-  if (!$library['installed']) {
+  // Check if the Mailgun PHP library is installed.
+  if (!mailgun_check_library()) {
     drupal_set_message(t('The Mailgun PHP library is not installed. Please see <a href="@url">documentation</a> for more information.', array('@url' => url('https://www.drupal.org/node/2547591'))), 'error');
   }
 

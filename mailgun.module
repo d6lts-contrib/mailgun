@@ -122,8 +122,7 @@ function mailgun_libraries_info() {
  */
 function mailgun_get_client($key = '') {
   // Check if the Mailgun PHP library is installed.
-  $library = libraries_load('mailgun');
-  if (!$library['installed']) {
+  if (!mailgun_check_library()) {
     watchdog('mailgun', 'Mailgun client initialization failed: Unable to load the Mailgun PHP library.', NULL, WATCHDOG_ERROR);
     return FALSE;
   }
@@ -136,6 +135,22 @@ function mailgun_get_client($key = '') {
 
   $client = new \Mailgun\Mailgun($key);
   return $client;
+}
+
+/**
+ * Detect if Mailgun library is installed.
+ *
+ * @return bool
+ *    TRUE if library is installed, FALSE otherwise.
+ */
+function mailgun_check_library() {
+  if (module_exists('libraries')) {
+    libraries_load('mailgun');
+  }
+  if (method_exists('\Mailgun\Mailgun', 'create')) {
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /**

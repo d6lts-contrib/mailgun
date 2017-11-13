@@ -1,9 +1,10 @@
+package = Mail
 name = Mailgun
 description = "Provides integration with Mailgun's email sending API."
 core = 7.x
-package = Mailgun
-
-dependencies[] = libraries
-dependencies[] = mailsystem
+php = 5.3
+configure = admin/config/system/mailgun
 
 files[] = mailgun.mail.inc
+
+dependencies[] = mailsystem (>=2.x)
