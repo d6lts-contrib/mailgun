@@ -138,6 +138,14 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
       $mailgun_message['bcc'] = $message['params']['bcc'];
     }
 
+    // Support CC / BCC provided by webform module.
+    if (!empty($message['params']['cc_mail'])) {
+      $mailgun_message['cc'] = $message['params']['cc_mail'];
+    }
+    if (!empty($message['params']['bcc_mail'])) {
+      $mailgun_message['bcc'] = $message['params']['bcc_mail'];
+    }
+
     // For a full list of allowed parameters,
     // see: https://documentation.mailgun.com/api-sending.html#sending.
     $allowed_params = [
