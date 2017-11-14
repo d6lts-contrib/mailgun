@@ -208,13 +208,21 @@ function mailgun_test_form($form, &$form_state) {
  */
 function mailgun_test_form_submit($form, &$form_state) {
   $to = $form_state['values']['to'];
+  $body = explode('\n', $form_state['values']['message']);
+
   $params = array(
-    'message' => $form_state['values']['message'],
+    'message' => $body,
     'attachment' => $form_state['values']['attachment'],
   );
   $site_name = variable_get('site_name', '');
   $default_from = variable_get('site_mail', ini_get('sendmail_from'));
   $from = (!empty($site_name)) ? $site_name . ' <' . $default_from . '>' : $default_from;
   $result = drupal_mail('mailgun', 'test', $to, $GLOBALS['language'], $params, $from);
-  drupal_set_message(t('Test email sent from %from to %to. If you have the "Log mails" setting enabled, check the <a href="@url">database log</a> for details.', array('%from' => $result['from'], '%to' => $result['to'], '@url' => url('admin/reports/dblog'))), 'status');
+
+  drupal_set_message(t('Test email sent from %from to %to. If you have the "Log mails" setting enabled, check the <a href="@url">database log</a> for details.',
+    array(
+      '%from' => $result['from'],
+      '%to' => $result['to'],
+      '@url' => url('admin/reports/dblog'),
+    )), 'status');
 }
