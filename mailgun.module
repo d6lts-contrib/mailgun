@@ -98,14 +98,17 @@ function mailgun_mail($key, &$message, $params) {
 function mailgun_libraries_info() {
   $libraries['mailgun'] = array(
     'name' => 'Mailgun PHP library',
-    'vendor url' => 'https://documentation.mailgun.com/wrappers.html#php',
-    'download url' => 'https://github.com/mailgun/mailgun-php/archive/v1.7.2.zip',
-    'path' => 'vendor',
+
+    'vendor url' => 'https://documentation.mailgun.com/en/latest/libraries.html#php',
+    'download url' => 'https://github.com/mailgun/mailgun-php',
+
     'version arguments' => array(
-      'file' => 'src/Mailgun/Constants/Constants.php',
-      // const SDK_VERSION = "1.7";
-      'pattern' => '/const SDK_VERSION = \"((\d+)\.(\d+))\";/',
+      'file' => 'vendor/mailgun/mailgun-php/CHANGELOG.md',
+      'pattern' => '/##\W+((\d+)\.(\d+))/',
     ),
+
+    // Path to the 'autoload.php' created by Composer.
+    'path' => 'vendor',
     'files' => array(
       'php' => array('autoload.php'),
     ),
