@@ -2,14 +2,14 @@
 
 /**
  * @file
- * Implements Mailgun as a Drupal MailSystemInterface
+ * Implements Mailgun as a Drupal MailSystemInterface.
  */
 
 /**
  * Modify the Drupal mail system to use Mailgun when sending e-mails.
  */
 class MailgunMailSystem implements MailSystemInterface {
-  
+
   /**
    * Concatenate and wrap the e-mail body for either plain-text or HTML e-mails.
    *
@@ -25,9 +25,9 @@ class MailgunMailSystem implements MailSystemInterface {
       $message['body'] = implode("\n\n", $message['body']);
     }
 
-    // If a text format is specified in Mailgun settings, run the message through it.
+    // Run the message through text format if specified in Mailgun settings.
     $format = variable_get('mailgun_format', '_none');
-    if ($format != '_none') {
+    if ($format !== '_none') {
       $message['body'] = check_markup($message['body'], $format);
     }
 
@@ -37,14 +37,15 @@ class MailgunMailSystem implements MailSystemInterface {
   /**
    * Send the e-mail message.
    *
-   * @see drupal_mail()
-   * @see https://documentation.mailgun.com/api-sending.html#sending
-   *
    * @param array $message
-   *   A message array, as described in hook_mail_alter(). $message['params'] may contain additional parameters. See mailgun_send().
+   *   A message array, as described in hook_mail_alter(). $message['params']
+   *   may contain additional parameters. See mailgun_send().
    *
    * @return bool
    *   TRUE if the mail was successfully accepted or queued, FALSE otherwise.
+   *
+   * @see drupal_mail()
+   * @see https://documentation.mailgun.com/api-sending.html#sending
    */
   public function mail(array $message) {
     // Build the Mailgun message array.
@@ -72,23 +73,32 @@ class MailgunMailSystem implements MailSystemInterface {
     $params = array();
 
     // Populate default settings.
-    if (($variable = variable_get('mailgun_tracking', 'default')) != 'default') {
-      $params['o:tracking'] = ($variable == 'enabled');
+    if (($variable = variable_get('mailgun_tracking', 'default')) !== 'default') {
+      $params['o:tracking'] = ($variable === 'enabled');
     }
-    if (($variable = variable_get('mailgun_tracking_clicks', 'default')) != 'default') {
-      $params['o:tracking-clicks'] = ($variable == 'enabled');
+    if (($variable = variable_get('mailgun_tracking_clicks', 'default')) !== 'default') {
+      $params['o:tracking-clicks'] = ($variable === 'enabled');
     }
-    if (($variable = variable_get('mailgun_tracking_opens', 'default')) != 'default') {
-      $params['o:tracking-opens'] = ($variable == 'enabled');
+    if (($variable = variable_get('mailgun_tracking_opens', 'default')) !== 'default') {
+      $params['o:tracking-opens'] = ($variable === 'enabled');
     }
 
-    // For a full list of allowed parameters, see: https://documentation.mailgun.com/api-sending.html#sending.
-    $allowed_params = array('o:tag', 'o:campaign', 'o:deliverytime', 'o:dkim', 'o:testmode', 'o:tracking', 'o:tracking-clicks', 'o:tracking-opens');
+    // For a full list of allowed parameters,
+    // see: https://documentation.mailgun.com/api-sending.html#sending.
+    $allowed_params = array(
+      'o:tag',
+      'o:campaign',
+      'o:deliverytime',
+      'o:dkim',
+      'o:testmode',
+      'o:tracking',
+      'o:tracking-clicks',
+      'o:tracking-opens',
+    );
     foreach ($message['params'] as $key => $value) {
       // Check if it's one of the known parameters.
-      $allowed = (in_array($key, $allowed_params)) ? TRUE : FALSE;
-      // If more options become available but are not yet supported by the module, uncomment the following line.
-      //$allowed = (substr($key, 0, 2) == 'o:') ? TRUE : FALSE;
+      $allowed = in_array($key, $allowed_params) ? TRUE : FALSE;
+
       if ($allowed) {
         $params[$key] = $value;
       }
@@ -96,10 +106,12 @@ class MailgunMailSystem implements MailSystemInterface {
       if (substr($key, 0, 2) == 'h:' || substr($key, 0, 2) == 'v:') {
         $params[$key] = $value;
       }
+
       // Add additional HIME headers, like Reply-to if it exists.
-      if ($key == 'headers' && is_array($value)) {
-        foreach($value as $headers_key => $headers_value)
-          $params['h:'.$headers_key] = $headers_value;
+      if ($key === 'headers' && is_array($value)) {
+        foreach ($value as $headers_key => $headers_value) {
+          $params['h:' . $headers_key] = $headers_value;
+        }
       }
     }
 
@@ -108,7 +120,8 @@ class MailgunMailSystem implements MailSystemInterface {
       $params['attachments'] = array();
       foreach ($message['params']['attachments'] as $attachment) {
         if (is_array($attachment)) {
-          // filecontent attachment key can be used by MimeMail as data of the related file
+          // `filecontent` attachment key can be used by MimeMail as data
+          // of the related file.
           if (array_key_exists('filecontent', $attachment)) {
             $temp_file = tmpfile();
             fwrite($temp_file, $attachment['filecontent']);

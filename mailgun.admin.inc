@@ -19,7 +19,9 @@
 function mailgun_admin_settings($form, &$form_state) {
   // Check if the Mailgun PHP library is installed.
   if (!mailgun_check_library()) {
-    drupal_set_message(t('The Mailgun PHP library is not installed. Please see <a href="@url">documentation</a> for more information.', array('@url' => url('https://www.drupal.org/node/2547591'))), 'error');
+    drupal_set_message(t('The Mailgun PHP library is not installed. Please see !link for more information.', array(
+      '!link' => l(t('documentation'), MAILGUN_DOCUMENTATION_LINK),
+    )), 'error');
   }
 
   $key = variable_get('mailgun_api_key', '');
@@ -27,7 +29,9 @@ function mailgun_admin_settings($form, &$form_state) {
   $form['mailgun_api_key'] = array(
     '#title' => t('Mailgun API key'),
     '#type' => 'textfield',
-    '#description' => t('Get your Secret API key from the <a href="@url">Mailgun dashboard</a>.', array('@url' => url('https://mailgun.com/app/dashboard'))),
+    '#description' => t('Get your Secret API key from the !link.', array(
+      '!link' => l(t('Mailgun dashboard'), MAILGUN_DASHBOARD_LINK),
+    )),
     '#default_value' => $key,
     '#required' => TRUE,
   );
@@ -36,13 +40,17 @@ function mailgun_admin_settings($form, &$form_state) {
   if (!empty($key)) {
     try {
       $client = mailgun_get_client($key);
-    } catch (Exception $e) {
-      watchdog('mailgun', 'An exception occurred. @code: @message', array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_WARNING, 'admin/config/system/mailgun');
+    }
+    catch (Exception $e) {
+      watchdog('mailgun', 'An exception occurred. @code: @message', array(
+        '@code' => $e->getCode(),
+        '@message' => $e->getMessage(),
+      ), WATCHDOG_WARNING, MAILGUN_ADMIN_PAGE);
       drupal_set_message(t('Mailgun: %message', array('%message' => $e->getMessage())), 'error');
     }
   }
 
-  // Display settings only when a valid API key is present and client is active
+  // Display settings only when a valid API key is present and client is active.
   if ($client) {
     $domain_options = array(
       '_sender' => t('Get domain from sender address'),
@@ -87,10 +95,10 @@ function mailgun_admin_settings($form, &$form_state) {
 
     $formats = array('_none' => t('- None -'));
     foreach (filter_formats() as $format) {
-      if ($format->format == 'php_code') {
+      if ($format->format === 'php_code') {
         continue;
       }
-      $formats[$format->format] = t($format->name);
+      $formats[$format->format] = $format->name;
     }
     $form['mailgun_format'] = array(
       '#title' => t('Text format'),
@@ -108,18 +116,27 @@ function mailgun_admin_settings($form, &$form_state) {
       '#collapsed' => FALSE,
     );
 
+    // We have the same options for all settings.
+    $options = array(
+      'default' => t('Use default setting'),
+      'enabled' => t('Enabled'),
+      'disabled' => t('Disabled'),
+    );
+
     $form['defaults']['mailgun_tracking'] = array(
       '#title' => t('Enable tracking'),
       '#type' => 'select',
-      '#options' => array('default' => t('Use default setting'), 'enabled' => t('Enabled'), 'disabled' => t('Disabled')),
-      '#description' => t('Whether to enable event tracking by default or not. See <a href="@url">Tracking Messages</a> for details.', array('@url' => url('https://documentation.mailgun.com/user_manual.html#tracking-messages'))),
+      '#options' => $options,
+      '#description' => t('Whether to enable event tracking by default or not. See !link for details.', array(
+        '!link' => l(t('Tracking Messages'), 'https://documentation.mailgun.com/user_manual.html#tracking-messages'),
+      )),
       '#default_value' => variable_get('mailgun_tracking', 'default'),
     );
 
     $form['defaults']['mailgun_tracking_clicks'] = array(
       '#title' => t('Enable click tracking'),
       '#type' => 'select',
-      '#options' => array('default' => t('Use default setting'), 'enabled' => t('Enabled'), 'disabled' => t('Disabled')),
+      '#options' => $options,
       '#description' => t('Whether to enable click tracking by default or not.'),
       '#default_value' => variable_get('mailgun_tracking_clicks', 'default'),
     );
@@ -127,7 +144,7 @@ function mailgun_admin_settings($form, &$form_state) {
     $form['defaults']['mailgun_tracking_opens'] = array(
       '#title' => t('Enable open tracking'),
       '#type' => 'select',
-      '#options' => array('default' => t('Use default setting'), 'enabled' => t('Enabled'), 'disabled' => t('Disabled')),
+      '#options' => $options,
       '#description' => t('Whether to enable open tracking by default or not.'),
       '#default_value' => variable_get('mailgun_tracking_opens', 'default'),
     );
@@ -152,8 +169,12 @@ function mailgun_admin_settings_validate($form, &$form_state) {
     try {
       $result = $client->get('domains');
       drupal_set_message(t('Your API key has been successfully validated.'));
-    } catch (Exception $e) {
-      form_set_error('mailgun_api_key', t('An exception occurred. @code: @message', array('@code' => $e->getCode(), '@message' => $e->getMessage())));
+    }
+    catch (Exception $e) {
+      form_set_error('mailgun_api_key', t('An exception occurred. @code: @message', array(
+        '@code' => $e->getCode(),
+        '@message' => $e->getMessage(),
+      )));
     }
   }
 }
@@ -172,9 +193,11 @@ function mailgun_test_form($form, &$form_state) {
     '#required' => TRUE,
   );
 
-  $message = "Howdy!\n\nIf this e-mail is displayed correctly and delivered sound and safe, congrats! You have successfully configured Mailgun.";
-  $message .= ' Visit the <a href="@project">project page</a> to contribute or read <a href="@documentation">documentation</a> to learn more.';
-  $message = t($message, array('@project' => url('https://www.drupal.org/project/mailgun'), '@documentation' => url('https://www.drupal.org/node/2547591')));
+  $message = "Howdy!\n\nIf this e-mail is displayed correctly and delivered sound and safe, congrats! You have successfully configured Mailgun. ";
+  $message .= t('Visit the !project to contribute or read !documentation to learn more.', array(
+    '!project' => l(t('project page'), 'https://www.drupal.org/project/mailgun'),
+    '!documentation' => l(t('documentation'), MAILGUN_DOCUMENTATION_LINK),
+  ));
   $form['message'] = array(
     '#type' => 'textarea',
     '#title' => t('Message'),
@@ -195,7 +218,7 @@ function mailgun_test_form($form, &$form_state) {
   );
   $form['cancel'] = array(
     '#type' => 'link',
-    '#href' => 'admin/config/system/mailgun',
+    '#href' => MAILGUN_ADMIN_PAGE,
     '#title' => t('Cancel'),
   );
 
@@ -204,6 +227,7 @@ function mailgun_test_form($form, &$form_state) {
 
 /**
  * Form submission handler for mailgun_test_form().
+ *
  * Send the test e-mail.
  */
 function mailgun_test_form_submit($form, &$form_state) {

@@ -5,13 +5,19 @@
  * Provides integration with Mailgun's email sending API.
  */
 
+use Mailgun\Mailgun;
+
+define('MAILGUN_DOCUMENTATION_LINK', 'https://www.drupal.org/node/2547591');
+define('MAILGUN_DASHBOARD_LINK', 'https://mailgun.com/app/dashboard');
+define('MAILGUN_ADMIN_PAGE', 'admin/config/system/mailgun');
+
 /**
  * Implements hook_menu().
  */
 function mailgun_menu() {
   $items = array();
 
-  $items['admin/config/system/mailgun'] = array(
+  $items[MAILGUN_ADMIN_PAGE] = array(
     'title' => 'Mailgun',
     'description' => 'Configure Mailgun settings.',
     'page callback' => 'drupal_get_form',
@@ -19,12 +25,12 @@ function mailgun_menu() {
     'access arguments' => array('administer mailgun'),
     'file' => 'mailgun.admin.inc',
   );
-  $items['admin/config/system/mailgun/settings'] = array(
+  $items[MAILGUN_ADMIN_PAGE . '/settings'] = array(
     'title' => 'Settings',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => 0,
   );
-  $items['admin/config/system/mailgun/test'] = array(
+  $items[MAILGUN_ADMIN_PAGE . '/test'] = array(
     'title' => 'Send test email',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('mailgun_test_form'),
@@ -46,7 +52,7 @@ function mailgun_permission() {
     'administer mailgun' => array(
       'title' => t('Administer Mailgun'),
       'description' => t('Perform administration tasks for the Mailgun e-mail sending service.'),
-      "restrict access" => TRUE,
+      'restrict access' => TRUE,
     ),
   );
 }
@@ -56,12 +62,13 @@ function mailgun_permission() {
  */
 function mailgun_help($path, $arg) {
   switch ($path) {
-    case 'admin/config/system/mailgun':
-      return '<p>' . t('See <a href="@url">documentation</a> for instructions on installing and configuring Mailgun.', array('@url' => url('https://www.drupal.org/node/2547591'))) . '</p>';
-      break;
-    case 'admin/config/system/mailgun/test':
+    case MAILGUN_ADMIN_PAGE:
+      return '<p>' . t('See !link for instructions on installing and configuring Mailgun.', array(
+        '!link' => l(t('documentation'), MAILGUN_DOCUMENTATION_LINK),
+      )) . '</p>';
+
+    case MAILGUN_ADMIN_PAGE . '/test':
       return '<p>' . t('Use this form to send a test e-mail to ensure you have correctly configured Mailgun.') . '</p>';
-      break;
   }
 }
 
@@ -122,6 +129,9 @@ function mailgun_libraries_info() {
  *
  * @param string $key
  *   The Mailgun API key. Leave empty to use the API key saved in database.
+ *
+ * @return Mailgun
+ *    Mailgun object.
  */
 function mailgun_get_client($key = '') {
   // Check if the Mailgun PHP library is installed.
@@ -136,8 +146,7 @@ function mailgun_get_client($key = '') {
     return FALSE;
   }
 
-  $client = new \Mailgun\Mailgun($key);
-  return $client;
+  return new Mailgun($key);
 }
 
 /**
@@ -164,20 +173,39 @@ function mailgun_check_library() {
  *   - from: The e-mail addressthe message will be sent from.
  *   - to: The e-mail addressthe message will be sent to.
  *   - subject: The subject of the message.
- *   - text: The plain-text version of the message. Processed using check_plain().
+ *   - text: The plain-text version of the message. Processed using
+ *    drupal_html_to_text().
  *   - html: The original message content. May contain HTML tags.
- *   - cc: One or more carbon copy recipients. If multiple, separate with commas.
- *   - bcc: One or more blind carbon copy recipients. If multiple, separate with commas.
- *   - o:tag: An array containing the tags to add to the message. See: https://documentation.mailgun.com/user_manual.html#tagging.
- *   - o:campaign: The campaign ID this message belongs to. See: https://documentation.mailgun.com/user_manual.html#um-campaign-analytics.
- *   - o:deliverytime: Desired time of delivery. Messages can be scheduled for a maximum of 3 days in the future. See: https://documentation.mailgun.com/api-intro.html#date-format.
- *   - o:dkim: Boolean indicating whether or not to enable DKIM signatures on per-message basis.
- *   - o:testmode: Boolean indicating whether or not to enable test mode. See: https://documentation.mailgun.com/user_manual.html#manual-testmode.
- *   - o:tracking: Boolean indicating whether or not to toggle tracking on a per-message basis. See: https://documentation.mailgun.com/user_manual.html#tracking-messages.
- *   - o:tracking-clicks: Boolean or string "htmlonly" indicating whether or not to toggle clicks tracking on a per-message basis. Has higher priority than domain-level setting.
- *   - o:tracking-opens: Boolean indicating whether or not to toggle clicks tracking on a per-message basis. Has higher priority than domain-level setting.
- *   - h:X-My-Header: h: prefix followed by an arbitrary value allows to append a custom MIME header to the message (X-My-Header in this case). For example, h:Reply-To to specify Reply-To address.
- *   - v:my-var: v: prefix followed by an arbitrary name allows to attach a custom JSON data to the message. See: https://documentation.mailgun.com/user_manual.html#manual-customdata.
+ *   - cc: One or more carbon copy recipients. If multiple, separate with
+ *    commas.
+ *   - bcc: One or more blind carbon copy recipients. If multiple, separate
+ *    with commas.
+ *   - o:tag: An array containing the tags to add to the message.
+ *    See: https://documentation.mailgun.com/user_manual.html#tagging.
+ *   - o:campaign: The campaign ID this message belongs to.
+ *    See: https://documentation.mailgun.com/user_manual.html#um-campaign-analytics.
+ *   - o:deliverytime: Desired time of delivery. Messages can be scheduled for
+ *    a maximum of 3 days in the future.
+ *    See: https://documentation.mailgun.com/api-intro.html#date-format.
+ *   - o:dkim: Boolean indicating whether or not to enable DKIM signatures on
+ *    per-message basis.
+ *   - o:testmode: Boolean indicating whether or not to enable test mode.
+ *    See: https://documentation.mailgun.com/user_manual.html#manual-testmode.
+ *   - o:tracking: Boolean indicating whether or not to toggle tracking on a
+ *    per-message basis.
+ *    See: https://documentation.mailgun.com/user_manual.html#tracking-messages.
+ *   - o:tracking-clicks: Boolean or string "htmlonly" indicating whether or
+ *    not to toggle clicks tracking on a per-message basis. Has higher
+ *    priority than domain-level setting.
+ *   - o:tracking-opens: Boolean indicating whether or not to toggle clicks
+ *    tracking on a per-message basis. Has higher priority than domain-level
+ *    setting.
+ *   - h:X-My-Header: h: prefix followed by an arbitrary value allows to append
+ *    a custom MIME header to the message (X-My-Header in this case).
+ *    For example, h:Reply-To to specify Reply-To address.
+ *   - v:my-var: v: prefix followed by an arbitrary name allows to attach a
+ *    custom JSON data to the message.
+ *    See: https://documentation.mailgun.com/user_manual.html#manual-customdata.
  *
  * @return bool
  *   TRUE if the mail was successfully accepted, FALSE otherwise.
@@ -188,7 +216,7 @@ function mailgun_send($mailgun_message) {
     return FALSE;
   }
 
-  // Test mode
+  // Test mode. Mailgun will accept the message but will not send it.
   if (variable_get('mailgun_test', FALSE)) {
     $mailgun_message['o:testmode'] = 'yes';
   }
@@ -197,8 +225,10 @@ function mailgun_send($mailgun_message) {
   $mailgun_message += $mailgun_message['params'];
   unset($mailgun_message['params']);
 
-  if (variable_get('mailgun_domain', '_sender') == '_sender') {
-    // Extract the domain from the sender's email address. Use regular expression to check since it could be either a plain email address or in the form "Name <example@example.com>".
+  if (variable_get('mailgun_domain', '_sender') === '_sender') {
+    // Extract the domain from the sender's email address.
+    // Use regular expression to check since it could be either a plain email
+    // address or in the form "Name <example@example.com>".
     $tokens = (preg_match('/^\s*(.+?)\s*<\s*([^>]+)\s*>$/', $mailgun_message['from'], $matches) === 1) ? explode('@', $matches[2]) : explode('@', $mailgun_message['from']);
     $mail_domain = array_pop($tokens);
 
@@ -212,18 +242,26 @@ function mailgun_send($mailgun_message) {
         }
       }
       else {
-        watchdog('mailgun', 'Mailgun server returned a %code error. Could not retrieve domain list.', array('%code' => $result->http_response_code), WATCHDOG_ERROR);
+        watchdog('mailgun', 'Mailgun server returned a %code error. Could not retrieve domain list.', array(
+          '%code' => $result->http_response_code,
+        ), WATCHDOG_ERROR);
       }
-    } catch (Exception $e) {
-      watchdog('mailgun', 'An exception occurred while retrieving domains. @code: @message', array('@code' => $e->getCode(), '@message' => $e->getMessage()), WATCHDOG_ERROR);
+    }
+    catch (Exception $e) {
+      watchdog('mailgun', 'An exception occurred while retrieving domains. @code: @message', array(
+        '@code' => $e->getCode(),
+        '@message' => $e->getMessage(),
+      ), WATCHDOG_ERROR);
     }
 
     if (empty($domains)) {
-      // No domain available. Although this shouldn't happen, doesn't hurt to check.
+      // No domain available.
+      // Although this shouldn't happen, doesn't hurt to check.
       return FALSE;
     }
 
-    // Now, we need to get the working domain. This is generally the domain the From address is on or the root domain of it.
+    // Now, we need to get the working domain. This is generally the domain the
+    // From address is on or the root domain of it.
     $working_domain = '';
     if ($key = array_search($mail_domain, $domains) !== FALSE) {
       // Great. Found it.
@@ -240,10 +278,13 @@ function mailgun_send($mailgun_message) {
       }
     }
 
-    // There is a chance that the user is attempting to send from an email address that's on a domain not yet added to the Mailgun account.
+    // There is a chance that the user is attempting to send from an email
+    // address that's on a domain not yet added to the Mailgun account.
     // In that case, abort sending and report error.
     if (empty($working_domain)) {
-      watchdog('mailgun', 'Unable to locate a working domain for From address %mail. Aborting sending.', array('%mail' => $mailgun_message['from']), WATCHDOG_ERROR);
+      watchdog('mailgun', 'Unable to locate a working domain for From address %mail. Aborting sending.', array(
+        '%mail' => $mailgun_message['from'],
+      ), WATCHDOG_ERROR);
       return FALSE;
     }
   }
@@ -251,29 +292,47 @@ function mailgun_send($mailgun_message) {
     $working_domain = variable_get('mailgun_domain', '');
   }
 
-  // Attachments
+  // Attachments.
   $post_data = array();
   if (!empty($mailgun_message['attachments'])) {
+
     // Send message with attachments.
     $post_data['attachment'] = $mailgun_message['attachments'];
     unset($mailgun_message['attachments']);
   }
-  
+
   try {
     $result = $client->sendMessage($working_domain, $mailgun_message, $post_data);
 
-    // For a list of HTTP response codes, see: https://documentation.mailgun.com/api-intro.html#errors.
+    // For a list of HTTP response codes,
+    // see: https://documentation.mailgun.com/api-intro.html#errors.
     if ($result->http_response_code == 200) {
       if (variable_get('mailgun_log', FALSE)) {
-        watchdog('mailgun', 'Successfully sent message from %from to %to. %code: %message.', array('%from' => $mailgun_message['from'], '%to' => $mailgun_message['to'], '%code' => $result->http_response_code, '%message' => $result->http_response_body->message));
+        watchdog('mailgun', 'Successfully sent message from %from to %to. %code: %message.', array(
+          '%from' => $mailgun_message['from'],
+          '%to' => $mailgun_message['to'],
+          '%code' => $result->http_response_code,
+          '%message' => $result->http_response_body->message,
+        ));
       }
       return TRUE;
     }
     else {
-      watchdog('mailgun', 'Failed to send message from %from to %to. %code: %message.', array('%from' => $mailgun_message['from'], '%to' => $mailgun_message['to'], '%code' => $result->http_response_code, '%message' => $result->http_response_body->message), WATCHDOG_ERROR);
+      watchdog('mailgun', 'Failed to send message from %from to %to. %code: %message.', array(
+        '%from' => $mailgun_message['from'],
+        '%to' => $mailgun_message['to'],
+        '%code' => $result->http_response_code,
+        '%message' => $result->http_response_body->message,
+      ), WATCHDOG_ERROR);
       return FALSE;
     }
-  } catch (Exception $e) {
-    watchdog('mailgun', 'Exception occurred while trying to send test email from %from to %to. @code: @message.', array('%from' => $mailgun_message['from'], '%to' => $mailgun_message['to'], '@code' => $e->getCode(), '@message' => $e->getMessage()));
+  }
+  catch (Exception $e) {
+    watchdog('mailgun', 'Exception occurred while trying to send test email from %from to %to. @code: @message.', array(
+      '%from' => $mailgun_message['from'],
+      '%to' => $mailgun_message['to'],
+      '@code' => $e->getCode(),
+      '@message' => $e->getMessage(),
+    ));
   }
 }
