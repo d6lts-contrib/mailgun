@@ -72,14 +72,14 @@ class MailgunMailSystem implements MailSystemInterface {
     $params = array();
 
     // Populate default settings.
-    if ($variable = variable_get('mailgun_tracking', 'default') != 'default') {
-      $params['o:tracking'] = $variable;
+    if (($variable = variable_get('mailgun_tracking', 'default')) != 'default') {
+      $params['o:tracking'] = ($variable == 'enabled');
     }
-    if ($variable = variable_get('mailgun_tracking_clicks', 'default') != 'default') {
-      $params['o:tracking-clicks'] = $variable;
+    if (($variable = variable_get('mailgun_tracking_clicks', 'default')) != 'default') {
+      $params['o:tracking-clicks'] = ($variable == 'enabled');
     }
-    if ($variable = variable_get('mailgun_tracking_opens', 'default') != 'default') {
-      $params['o:tracking-opens'] = $variable;
+    if (($variable = variable_get('mailgun_tracking_opens', 'default')) != 'default') {
+      $params['o:tracking-opens'] = ($variable == 'enabled');
     }
 
     // For a full list of allowed parameters, see: https://documentation.mailgun.com/api-sending.html#sending.
@@ -95,6 +95,11 @@ class MailgunMailSystem implements MailSystemInterface {
       // Check for custom MIME headers or custom JSON data.
       if (substr($key, 0, 2) == 'h:' || substr($key, 0, 2) == 'v:') {
         $params[$key] = $value;
+      }
+      // Add additional HIME headers, like Reply-to if it exists.
+      if ($key == 'headers' && is_array($value)) {
+        foreach($value as $headers_key => $headers_value)
+          $params['h:'.$headers_key] = $headers_value;
       }
     }
 
