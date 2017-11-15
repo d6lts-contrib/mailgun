@@ -117,7 +117,7 @@ class MailgunMailSystem implements MailSystemInterface {
 
     // Make sure the files provided in the attachments array exist.
     if (!empty($message['params']['attachments'])) {
-      $params['attachments'] = array();
+      $params['attachment'] = array();
       foreach ($message['params']['attachments'] as $attachment) {
         if (is_array($attachment)) {
           // `filecontent` attachment key can be used by MimeMail as data
@@ -130,18 +130,18 @@ class MailgunMailSystem implements MailSystemInterface {
             if (array_key_exists('filename', $attachment)) {
               $_attachment['remoteName'] = $attachment['filename'];
             }
-            $params['attachments'][] = $_attachment;
+            $params['attachment'][] = $_attachment;
           }
           elseif (array_key_exists('filepath', $attachment) && file_exists($attachment['filepath'])) {
             $_attachment = ['filePath' => $attachment['filepath']];
             if (array_key_exists('filename', $attachment)) {
               $_attachment['remoteName'] = $attachment['filename'];
             }
-            $params['attachments'][] = $_attachment;
+            $params['attachment'][] = $_attachment;
           }
         }
         elseif (file_exists($attachment)) {
-          $params['attachments'][] = $attachment;
+          $params['attachment'][] = $attachment;
         }
       }
     }

@@ -136,17 +136,17 @@ function mailgun_libraries_info() {
 function mailgun_get_client($key = '') {
   // Check if the Mailgun PHP library is installed.
   if (!mailgun_check_library()) {
-    watchdog('mailgun', 'Mailgun client initialization failed: Unable to load the Mailgun PHP library.', NULL, WATCHDOG_ERROR);
+    watchdog('mailgun', 'Mailgun client initialization failed: Unable to load the Mailgun PHP library.', array(), WATCHDOG_ERROR);
     return FALSE;
   }
 
   $key = (empty($key)) ? variable_get('mailgun_api_key', '') : $key;
   if (empty($key)) {
-    watchdog('mailgun', 'Mailgun client initialization failed: Missing API key.', NULL, WATCHDOG_ERROR);
+    watchdog('mailgun', 'Mailgun client initialization failed: Missing API key.', array(), WATCHDOG_ERROR);
     return FALSE;
   }
 
-  return new Mailgun($key);
+  return Mailgun::create($key);
 }
 
 /**
@@ -235,16 +235,14 @@ function mailgun_send($mailgun_message) {
     // Retrieve a list of available domains first.
     $domains = array();
     try {
-      $result = $client->get('domains');
-      if ($result->http_response_code == 200) {
-        foreach ($result->http_response_body->items as $item) {
-          $domains[$item->name] = $item->name;
+      $result = $client->domains()->index();
+      if (!empty($result)) {
+        foreach ($result->getDomains() as $domain) {
+          $domains[$domain->getName()] = $domain->getName();
         }
       }
       else {
-        watchdog('mailgun', 'Mailgun server returned a %code error. Could not retrieve domain list.', array(
-          '%code' => $result->http_response_code,
-        ), WATCHDOG_ERROR);
+        watchdog('mailgun', 'Could not retrieve domain list.', array(), WATCHDOG_ERROR);
       }
     }
     catch (Exception $e) {
@@ -292,37 +290,35 @@ function mailgun_send($mailgun_message) {
     $working_domain = variable_get('mailgun_domain', '');
   }
 
-  // Attachments.
-  $post_data = array();
-  if (!empty($mailgun_message['attachments'])) {
-
-    // Send message with attachments.
-    $post_data['attachment'] = $mailgun_message['attachments'];
-    unset($mailgun_message['attachments']);
+  // Send message with attachments.
+  if (!empty($mailgun_message['attachment'])) {
+    foreach ($mailgun_message['attachment'] as &$attachment) {
+      // Ignore array constructions. Not sure what values can be here.
+      if (is_array($attachment)) {
+        continue;
+      }
+      $attachment = array('filePath' => $attachment);
+    }
   }
 
   try {
-    $result = $client->sendMessage($working_domain, $mailgun_message, $post_data);
+    $result = $client->messages()->send($working_domain, $mailgun_message);
 
-    // For a list of HTTP response codes,
-    // see: https://documentation.mailgun.com/api-intro.html#errors.
-    if ($result->http_response_code == 200) {
+    if (!empty($result)) {
       if (variable_get('mailgun_log', FALSE)) {
-        watchdog('mailgun', 'Successfully sent message from %from to %to. %code: %message.', array(
+        watchdog('mailgun', 'Successfully sent message from %from to %to. %message.', array(
           '%from' => $mailgun_message['from'],
           '%to' => $mailgun_message['to'],
-          '%code' => $result->http_response_code,
-          '%message' => $result->http_response_body->message,
+          '%message' => $result->getMessage(),
         ));
       }
       return TRUE;
     }
     else {
-      watchdog('mailgun', 'Failed to send message from %from to %to. %code: %message.', array(
+      watchdog('mailgun', 'Failed to send message from %from to %to. %message.', array(
         '%from' => $mailgun_message['from'],
         '%to' => $mailgun_message['to'],
-        '%code' => $result->http_response_code,
-        '%message' => $result->http_response_body->message,
+        '%message' => $result->getMessage(),
       ), WATCHDOG_ERROR);
       return FALSE;
     }

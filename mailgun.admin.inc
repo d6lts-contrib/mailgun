@@ -55,12 +55,10 @@ function mailgun_admin_settings($form, &$form_state) {
     $domain_options = array(
       '_sender' => t('Get domain from sender address'),
     );
-    $domains = array();
-    $result = $client->get('domains');
-    if ($result && $result->http_response_code == 200) {
-      foreach ($result->http_response_body->items as $domain) {
-        $domains[$domain->name] = $domain;
-        $domain_options[$domain->name] = $domain->name;
+    $result = $client->domains()->index();
+    if (!empty($result)) {
+      foreach ($result->getDomains() as $domain) {
+        $domain_options[$domain->getName()] = $domain->getName();
       }
     }
 
@@ -167,7 +165,7 @@ function mailgun_admin_settings_validate($form, &$form_state) {
     $form_state['values']['mailgun_api_key'] = trim($form_state['values']['mailgun_api_key']);
     $client = mailgun_get_client($form_state['values']['mailgun_api_key']);
     try {
-      $result = $client->get('domains');
+      $client->domains()->index();
       drupal_set_message(t('Your API key has been successfully validated.'));
     }
     catch (Exception $e) {
