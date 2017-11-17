@@ -5,7 +5,9 @@ namespace Drupal\mailgun\Plugin\Mail;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Mail\MailInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\mailgun\MailgunMailHandler;
 use Html2Text\Html2Text;
 use Drupal\Component\Utility\Html;
 use Psr\Log\LoggerInterface;
@@ -27,7 +29,7 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
    *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
-  protected $drupalConfig;
+  protected $mailgunConfig;
 
   /**
    * Logger.
@@ -44,12 +46,28 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
   protected $renderer;
 
   /**
+   * Queue factory.
+   *
+   * @var \Drupal\Core\Queue\QueueFactory
+   */
+  protected $queueFactory;
+
+  /**
+   * MailGun mail handler.
+   *
+   * @var \Drupal\mailgun\MailgunMailHandler
+   */
+  protected $mailgunHandler;
+
+  /**
    * Mailgun constructor.
    */
-  function __construct(ImmutableConfig $settings, LoggerInterface $logger, RendererInterface $renderer) {
-    $this->drupalConfig = $settings;
+  public function __construct(ImmutableConfig $settings, LoggerInterface $logger, RendererInterface $renderer, QueueFactory $queueFactory, MailgunMailHandler $mailgunHandler) {
+    $this->mailgunConfig = $settings;
     $this->logger = $logger;
     $this->renderer = $renderer;
+    $this->queueFactory = $queueFactory;
+    $this->mailgunHandler = $mailgunHandler;
   }
 
   /**
@@ -59,7 +77,9 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
     return new static(
       $container->get('config.factory')->get('mailgun.adminsettings'),
       $container->get('logger.factory')->get('mailgun'),
-      $container->get('renderer')
+      $container->get('renderer'),
+      $container->get('queue'),
+      $container->get('mailgun.mail_handler')
     );
   }
 
@@ -78,7 +98,7 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
       $message['body'] = implode("\n\n", $message['body']);
     }
 
-    if ($this->drupalConfig->get('use_theme')) {
+    if ($this->mailgunConfig->get('use_theme')) {
       $render = [
         '#theme' => isset($message['params']['theme']) ? $message['params']['theme'] : 'mailgun',
         '#message' => $message,
@@ -90,7 +110,7 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
     }
 
     // If text format is specified in settings, run the message through it.
-    $format = $this->drupalConfig->get('format_filter');
+    $format = $this->mailgunConfig->get('format_filter');
 
     if (!empty($format)) {
       $message['body'] = check_markup($message['body'], $format, $message['langcode']);
@@ -187,11 +207,11 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
     }
 
     if ($this->checkTracking($message)) {
-      $track_opens = $this->drupalConfig->get('tracking_opens');
+      $track_opens = $this->mailgunConfig->get('tracking_opens');
       if (!empty($track_opens)) {
         $mailgun_message['o:tracking-opens'] = $track_opens;
       }
-      $track_clicks = $this->drupalConfig->get('tracking_clicks');
+      $track_clicks = $this->mailgunConfig->get('tracking_clicks');
       if (!empty($track_clicks)) {
         $mailgun_message['o:tracking-clicks'] = $track_opens;
       }
@@ -200,20 +220,16 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
       $mailgun_message['o:tracking'] = 'no';
     }
 
-    if ($this->drupalConfig->get('use_queue')) {
-      /** @var \Drupal\Core\Queue\QueueFactory $queue_factory */
-      // TODO: Use injections.
-      $queue_factory = \Drupal::service('queue');
-
+    if ($this->mailgunConfig->get('use_queue')) {
       /** @var \Drupal\Core\Queue\QueueInterface $queue */
-      $queue = $queue_factory->get('mailgun_send_mail');
+      $queue = $this->queueFactory->get('mailgun_send_mail');
 
       $item = new \stdClass();
       $item->message = $mailgun_message;
       $queue->createItem($item);
 
       // Debug mode: log all messages.
-      if ($this->drupalConfig->get('debug_mode')) {
+      if ($this->mailgunConfig->get('debug_mode')) {
         $this->logger->notice('Successfully queued message from %from to %to.',
           [
             '%from' => $mailgun_message['from'],
@@ -224,8 +240,7 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
       return TRUE;
     }
 
-    // TODO: We can inject our service here.
-    return \Drupal::service('mailgun.mail_handler')->sendMail($mailgun_message);
+    return $this->mailgunHandler->sendMail($mailgun_message);
   }
 
   /**
@@ -239,7 +254,7 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
    */
   protected function checkTracking(array $message) {
     $tracking = TRUE;
-    $tracking_exception = $this->drupalConfig->get('tracking_exception');
+    $tracking_exception = $this->mailgunConfig->get('tracking_exception');
     if (!empty($tracking_exception)) {
       $tracking = !in_array($message['module'] . ':' . $message['key'], explode("\n", $tracking_exception));
     }

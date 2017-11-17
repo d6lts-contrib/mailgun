@@ -1,6 +1,6 @@
 name: Mailgun
 type: module
-description: Allows site to send emails using Mailgun.com
+description: Allows site to send emails using Mailgun email service.
 core: 8.x
 package: mail
 configure: mailgun.admin_settings_form

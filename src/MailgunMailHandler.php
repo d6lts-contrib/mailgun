@@ -94,7 +94,6 @@ class MailgunMailHandler {
           '@message' => $e->getMessage(),
         ]
       );
-
       return FALSE;
     }
   }

@@ -43,17 +43,7 @@ function mailgun_requirements($phase) {
     ],
   ];
 
-  // Report Drupal version.
   if ($phase === 'runtime') {
-    $requirements['drupal'] = [
-      'title' => t('Drupal'),
-      'value' => \Drupal::VERSION,
-      'severity' => REQUIREMENT_INFO,
-    ];
-  }
-
-  if ($phase === 'runtime') {
-
     // Check for Mailgun library.
     if (class_exists('\Mailgun\Mailgun')) {
       $requirements['mailgun']['description'] = t('The Mailgun library is installed correctly.');

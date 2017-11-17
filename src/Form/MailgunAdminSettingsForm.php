@@ -4,6 +4,7 @@ namespace Drupal\mailgun\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 
 /**
@@ -36,14 +37,13 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
     $config = $this->config('mailgun.adminsettings');
 
     $url = Url::fromUri('https://mailgun.com/app/domains');
+    $link = Link::fromTextAndUrl('mailgun.com/app/domains', $url);
 
-    // TODO: Avoid deprecate methods.
-    $link = \Drupal::l($this->t('mailgun.com/app/domains'), $url);
-
-    $form['description'] =
-      [
-        '#markup' => "Please refer to $link for your settings.",
-      ];
+    $form['description'] = [
+      '#markup' => $this->t('Please refer to @link for your settings.', [
+        '@link' => $link->toString(),
+      ]),
+    ];
 
     $form['api_key'] = [
       '#title' => $this->t('Mailgun API Key'),
@@ -74,7 +74,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
     ];
 
     $url = Url::fromUri('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-opens');
-    $link = \Drupal::l($this->t('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-opens'), $url);
+    $link = Link::fromTextAndUrl('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-opens', $url);
     $form['advanced_settings']['tracking_opens'] = [
       '#title' => $this->t('Enable Track Opens'),
       '#type' => 'select',
@@ -84,10 +84,10 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
         'yes' => $this->t('Yes'),
       ],
       '#default_value' => $config->get('tracking_opens'),
-      '#description' => $this->t('Enable to track the opening of an email. See: @link', ['@link' => $link]),
+      '#description' => $this->t('Enable to track the opening of an email. See: @link', ['@link' => $link->toString()]),
     ];
     $url = Url::fromUri('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-clicks');
-    $link = \Drupal::l($this->t('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-clicks'), $url);
+    $link = Link::fromTextAndUrl('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-clicks', $url);
     $form['advanced_settings']['tracking_clicks'] = [
       '#title' => $this->t('Enable Track Clicks'),
       '#type' => 'select',
@@ -98,7 +98,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
         'htmlonly' => $this->t('HTML only'),
       ],
       '#default_value' => $config->get('tracking_clicks'),
-      '#description' => $this->t('Enable to track the clicks of within an email. See: @link', ['@link' => $link]),
+      '#description' => $this->t('Enable to track the clicks of within an email. See: @link', ['@link' => $link->toString()]),
     ];
     $form['advanced_settings']['tracking_exception'] = [
       '#title' => $this->t('Do not track the following mails'),
@@ -124,7 +124,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Use theme'),
       '#type' => 'checkbox',
       '#default_value' => $config->get('use_theme'),
-      '#description' => $this->t('Enable to pass the message through a theme function. Default "mailgun" or pass one with $message[\'params\'][\'theme\']'),
+      '#description' => $this->t('Enable to pass the message through a theme function. Default "mailgun" or pass one with $message["params"]["theme"]'),
     ];
     $form['advanced_settings']['use_queue'] = [
       '#title' => $this->t('Enable Queue'),
