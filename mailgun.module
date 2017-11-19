@@ -59,7 +59,7 @@ function mailgun_theme_suggestions_mailgun(array $variables) {
  *   - message: An associative array containing the message array.
  *   - body: The processed body.
  */
-function template_preprocess_mailgun(&$variables) {
+function template_preprocess_mailgun(array &$variables) {
   $variables['subject'] = $variables['message']['subject'];
   $variables['body'] = $variables['message']['body'];
 }

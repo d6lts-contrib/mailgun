@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Drupal\mailgun\Plugin\QueueWorker;
 
@@ -38,8 +38,6 @@ class SendMailBase extends QueueWorkerBase implements ContainerFactoryPluginInte
 
   /**
    * SendMailBase constructor.
-   *
-   * @param \Drupal\mailgun\MailgunMailHandler $mailgunHandler
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, ImmutableConfig $settings, LoggerInterface $logger, MailgunMailHandler $mailgunHandler) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -48,6 +46,9 @@ class SendMailBase extends QueueWorkerBase implements ContainerFactoryPluginInte
     $this->mailgunHandler = $mailgunHandler;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
       $configuration,
@@ -58,7 +59,6 @@ class SendMailBase extends QueueWorkerBase implements ContainerFactoryPluginInte
       $container->get('mailgun.mail_handler')
     );
   }
-
 
   /**
    * {@inheritdoc}

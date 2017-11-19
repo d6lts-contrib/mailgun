@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Drupal\mailgun\Plugin\QueueWorker;
 
