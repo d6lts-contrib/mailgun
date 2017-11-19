@@ -130,8 +130,8 @@ function mailgun_libraries_info() {
  * @param string $key
  *   The Mailgun API key. Leave empty to use the API key saved in database.
  *
- * @return Mailgun
- *    Mailgun object.
+ * @return \Mailgun\Mailgun
+ *   Mailgun object.
  */
 function mailgun_get_client($key = '') {
   // Check if the Mailgun PHP library is installed.
@@ -153,7 +153,7 @@ function mailgun_get_client($key = '') {
  * Detect if Mailgun library is installed.
  *
  * @return bool
- *    TRUE if library is installed, FALSE otherwise.
+ *   TRUE if library is installed, FALSE otherwise.
  */
 function mailgun_check_library() {
   if (module_exists('libraries')) {
@@ -183,7 +183,7 @@ function mailgun_check_library() {
  *   - o:tag: An array containing the tags to add to the message.
  *    See: https://documentation.mailgun.com/user_manual.html#tagging.
  *   - o:campaign: The campaign ID this message belongs to.
- *    See: https://documentation.mailgun.com/user_manual.html#um-campaign-analytics.
+ *    https://documentation.mailgun.com/user_manual.html#um-campaign-analytics
  *   - o:deliverytime: Desired time of delivery. Messages can be scheduled for
  *    a maximum of 3 days in the future.
  *    See: https://documentation.mailgun.com/api-intro.html#date-format.
@@ -210,7 +210,7 @@ function mailgun_check_library() {
  * @return bool
  *   TRUE if the mail was successfully accepted, FALSE otherwise.
  */
-function mailgun_send($mailgun_message) {
+function mailgun_send(array $mailgun_message) {
   $client = mailgun_get_client();
   if (!$client) {
     return FALSE;

@@ -16,7 +16,7 @@
  * @return array
  *   An array containing form items to place on the module settings page.
  */
-function mailgun_admin_settings($form, &$form_state) {
+function mailgun_admin_settings(array $form, array &$form_state) {
   // Check if the Mailgun PHP library is installed.
   if (!mailgun_check_library()) {
     drupal_set_message(t('The Mailgun PHP library is not installed. Please see !link for more information.', array(
