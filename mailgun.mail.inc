@@ -115,6 +115,11 @@ class MailgunMailSystem implements MailSystemInterface {
       }
     }
 
+    // Add default tags by mail key if enabled.
+    if (variable_get('mailgun_tagging_mailkey', TRUE)) {
+      $params['o:tag'][] = $message['id'];
+    }
+
     // Make sure the files provided in the attachments array exist.
     if (!empty($message['params']['attachments'])) {
       $params['attachment'] = array();

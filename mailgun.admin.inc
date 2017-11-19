@@ -146,6 +146,19 @@ function mailgun_admin_settings(array $form, array &$form_state) {
       '#description' => t('Whether to enable open tracking by default or not.'),
       '#default_value' => variable_get('mailgun_tracking_opens', 'default'),
     );
+
+    $form['defaults']['mailgun_tagging_mailkey'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable tags by mail key'),
+      '#description' => t('See !url for details.', array(
+        '!url' => l(t('Tagging'), 'https://documentation.mailgun.com/user_manual.html#tagging', array(
+          'attributes' => array(
+            'onclick' => "target='_blank'",
+          ),
+        )),
+      )),
+      '#default_value' => variable_get('mailgun_tagging_mailkey', TRUE),
+    );
   }
 
   $form = system_settings_form($form);

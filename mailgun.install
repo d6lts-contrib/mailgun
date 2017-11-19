@@ -21,6 +21,7 @@ function mailgun_uninstall() {
     'mailgun_queue',
     'mailgun_log',
     'mailgun_format',
+    'mailgun_tagging_mailkey',
   );
   foreach ($variables as $variable) {
     variable_del($variable);
