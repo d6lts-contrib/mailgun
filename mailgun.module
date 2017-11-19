@@ -63,3 +63,17 @@ function template_preprocess_mailgun(&$variables) {
   $variables['subject'] = $variables['message']['subject'];
   $variables['body'] = $variables['message']['body'];
 }
+
+/**
+ * Implements hook_mail().
+ */
+function mailgun_mail($key, &$message, $params) {
+
+  switch ($key) {
+    case 'test_form_email':
+      foreach ($params as $name => $value) {
+        $message[$name] = $value;
+      }
+      break;
+  }
+}

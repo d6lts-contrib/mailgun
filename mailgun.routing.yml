@@ -5,3 +5,11 @@ mailgun.admin_settings_form:
     _title: 'Mailgun Settings Form'
   requirements:
     _permission: 'administer mailgun'
+
+mailgun.test_email_form:
+  path: '/admin/config/services/mailgun/settings/test'
+  defaults:
+    _form: '\Drupal\mailgun\Form\MailgunTestEmailForm'
+    _title: 'Test Email Form'
+  requirements:
+    _permission: 'administer mailgun'
