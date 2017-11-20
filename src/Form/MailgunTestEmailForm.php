@@ -10,7 +10,7 @@ use Drupal\Core\Mail\MailManager;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\mailgun\MailgunMailHandler;
+use Drupal\mailgun\MailgunHandler;
 
 /**
  * Class MailgunTestEmailForm.
@@ -20,11 +20,11 @@ use Drupal\mailgun\MailgunMailHandler;
 class MailgunTestEmailForm extends FormBase {
 
   /**
-   * Drupal\mailgun\MailgunMailHandler definition.
+   * Drupal\mailgun\MailgunHandler definition.
    *
-   * @var \Drupal\mailgun\MailgunMailHandler
+   * @var \Drupal\mailgun\MailgunHandler
    */
-  protected $mailgunMailHandler;
+  protected $mailgunHandler;
 
   /**
    * Current user.
@@ -50,8 +50,8 @@ class MailgunTestEmailForm extends FormBase {
   /**
    * MailgunTestEmailForm constructor.
    */
-  public function __construct(MailgunMailHandler $mailgun_mail_handler, AccountProxyInterface $user, MailManager $mailManager, FileSystem $fileSystem) {
-    $this->mailgunMailHandler = $mailgun_mail_handler;
+  public function __construct(MailgunHandler $mailgunHandler, AccountProxyInterface $user, MailManager $mailManager, FileSystem $fileSystem) {
+    $this->mailgunHandler = $mailgunHandler;
     $this->user = $user;
     $this->mailManager = $mailManager;
     $this->fileSystem = $fileSystem;
@@ -80,7 +80,8 @@ class MailgunTestEmailForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    // TODO: Show a warning message if API is not configured.
+    MailgunHandler::status(TRUE);
+
     // TODO: Show current mail system to make sure that Mailgun is enabled.
     // But we can test all mail systems with this form.
     $form['to'] = [
@@ -143,7 +144,7 @@ If this e-mail is displayed correctly and delivered sound and safe, congrats! Yo
     }
 
     // TODO: Reply-To parameter can be added to form.
-    // Other parameters (cc, bcc, etc.) can be added for testing as well.
+    // TODO: Other parameters (cc, bcc, etc.) can be added for testing as well.
     $result = $this->mailManager->mail('mailgun', 'test_form_email', $to, $this->user->getPreferredLangcode(), $params, NULL, TRUE);
 
     if ($result['result'] === TRUE) {

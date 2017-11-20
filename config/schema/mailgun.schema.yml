@@ -8,6 +8,8 @@ mailgun.adminsettings:
       type: string
     debug_mode:
       type: boolean
+    test_mode:
+      type: boolean
     tracking_opens:
       type: string
     tracking_clicks:

@@ -10,7 +10,7 @@ use Mailgun\Exception;
 /**
  * Mail handler to send out an email message array to the Mailgun API.
  */
-class MailgunMailHandler {
+class MailgunHandler {
 
   /**
    * The config factory.
@@ -29,13 +29,13 @@ class MailgunMailHandler {
   /**
    * Constructs a new \Drupal\mailgun\MailHandler object.
    *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, LoggerInterface $logger) {
-    $this->configFactory = $config_factory;
+  public function __construct(ConfigFactoryInterface $configFactory, LoggerInterface $logger) {
+    $this->configFactory = $configFactory;
     $this->logger = $logger;
   }
 
@@ -96,6 +96,71 @@ class MailgunMailHandler {
       );
       return FALSE;
     }
+  }
+
+  /**
+   * Check Mailgun library and API settings.
+   */
+  public static function status($show_message = FALSE) {
+    return self::checkLibrary($show_message) && self::checkApiSettings($show_message);
+  }
+
+  /**
+   * Check that Mailgun PHP SDK is installed correctly.
+   */
+  public static function checkLibrary($show_message = FALSE) {
+    $library_status = class_exists('\Mailgun\Mailgun');
+    if ($show_message === FALSE) {
+      return $library_status;
+    }
+
+    if ($library_status === FALSE) {
+      drupal_set_message(t('The Mailgun library has not been installed correctly.'), 'warning');
+    }
+    return $library_status;
+  }
+
+  /**
+   * Check if API settings are correct and not empty.
+   */
+  public static function checkApiSettings($show_message = FALSE) {
+    $mailgun_settings = \Drupal::config('mailgun.adminsettings');
+    $api_key = $mailgun_settings->get('api_key');
+    $working_domain = $mailgun_settings->get('working_domain');
+
+    if (empty($api_key) || empty($working_domain)) {
+      if ($show_message) {
+        drupal_set_message(t("Please check your API settings. API key and domain shouldn't be empty."), 'warning');
+      }
+      return FALSE;
+    }
+
+    if (self::validateKey($api_key) === FALSE) {
+      if ($show_message) {
+        drupal_set_message(t("Couldn't connect to the Mailgun API. Please check your API settings."), 'warning');
+      }
+      return FALSE;
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * Validates Mailgun API key.
+   */
+  public static function validateKey($key) {
+    if (self::checkLibrary() === FALSE) {
+      return FALSE;
+    }
+    $mailgun = Mailgun::create($key);
+
+    try {
+      $mailgun->domains()->index();
+    }
+    catch (Exception $e) {
+      return FALSE;
+    }
+    return TRUE;
   }
 
 }

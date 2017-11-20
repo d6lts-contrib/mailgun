@@ -7,7 +7,7 @@ use Drupal\Core\Mail\MailInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\mailgun\MailgunMailHandler;
+use Drupal\mailgun\MailgunHandler;
 use Html2Text\Html2Text;
 use Drupal\Component\Utility\Html;
 use Psr\Log\LoggerInterface;
@@ -55,14 +55,14 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
   /**
    * MailGun mail handler.
    *
-   * @var \Drupal\mailgun\MailgunMailHandler
+   * @var \Drupal\mailgun\MailgunHandler
    */
   protected $mailgunHandler;
 
   /**
    * Mailgun constructor.
    */
-  public function __construct(ImmutableConfig $settings, LoggerInterface $logger, RendererInterface $renderer, QueueFactory $queueFactory, MailgunMailHandler $mailgunHandler) {
+  public function __construct(ImmutableConfig $settings, LoggerInterface $logger, RendererInterface $renderer, QueueFactory $queueFactory, MailgunHandler $mailgunHandler) {
     $this->mailgunConfig = $settings;
     $this->logger = $logger;
     $this->renderer = $renderer;
@@ -190,6 +190,11 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
       if (substr($key, 0, 2) == 'h:' || substr($key, 0, 2) == 'v:') {
         $mailgun_message[$key] = $value;
       }
+    }
+
+    // Mailgun will accept the message but will not send it.
+    if ($this->mailgunConfig->get('test_mode')) {
+      $mailgun_message['o:testmode'] = 'yes';
     }
 
     // Make sure the files provided in the attachments array exist.

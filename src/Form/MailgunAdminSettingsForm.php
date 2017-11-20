@@ -6,6 +6,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\mailgun\MailgunHandler;
 
 /**
  * Class MailgunAdminSettingsForm.
@@ -33,7 +34,19 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    parent::validateForm($form, $form_state);
+
+    if (MailgunHandler::validateKey($form_state->getValue('api_key')) === FALSE) {
+      $form_state->setErrorByName('api_key', $this->t("Couldn't connect to the Mailgun API. Please check your API settings."));
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    MailgunHandler::checkLibrary(TRUE);
     $config = $this->config('mailgun.adminsettings');
 
     $url = Url::fromUri('https://mailgun.com/app/domains');
@@ -48,13 +61,18 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
     $form['api_key'] = [
       '#title' => $this->t('Mailgun API Key'),
       '#type' => 'textfield',
+      '#required' => TRUE,
       '#description' => $this->t('Enter your API key.'),
       '#default_value' => $config->get('api_key'),
+      '#attributes' => [
+        'placeholder' => 'key-1234567890abcdefghijklmnopqrstuv',
+      ],
     ];
 
     $form['working_domain'] = [
       '#title' => $this->t('Mailgun API Working Domain'),
       '#type' => 'textfield',
+      '#required' => TRUE,
       '#description' => $this->t('Enter your API working domain.'),
       '#default_value' => $config->get('working_domain'),
     ];
@@ -66,6 +84,13 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#description' => $this->t('Enable to log every email and queuing.'),
     ];
 
+    $form['test_mode'] = [
+      '#title' => $this->t('Enable Test Mode'),
+      '#type' => 'checkbox',
+      '#default_value' => $config->get('test_mode'),
+      '#description' => $this->t('Mailgun will accept the message but will not send it. This is useful for testing purposes.'),
+    ];
+
     $form['advanced_settings'] = [
       '#type' => 'details',
       '#title' => $this->t('Advanced settings'),
@@ -73,9 +98,14 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#collapsed' => TRUE,
     ];
 
+    $form['advanced_settings']['tracking'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Tracking'),
+    ];
+
     $url = Url::fromUri('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-opens');
     $link = Link::fromTextAndUrl('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-opens', $url);
-    $form['advanced_settings']['tracking_opens'] = [
+    $form['advanced_settings']['tracking']['tracking_opens'] = [
       '#title' => $this->t('Enable Track Opens'),
       '#type' => 'select',
       '#options' => [
@@ -86,9 +116,10 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('tracking_opens'),
       '#description' => $this->t('Enable to track the opening of an email. See: @link', ['@link' => $link->toString()]),
     ];
+
     $url = Url::fromUri('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-clicks');
     $link = Link::fromTextAndUrl('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-clicks', $url);
-    $form['advanced_settings']['tracking_clicks'] = [
+    $form['advanced_settings']['tracking']['tracking_clicks'] = [
       '#title' => $this->t('Enable Track Clicks'),
       '#type' => 'select',
       '#options' => [
@@ -100,12 +131,18 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('tracking_clicks'),
       '#description' => $this->t('Enable to track the clicks of within an email. See: @link', ['@link' => $link->toString()]),
     ];
-    $form['advanced_settings']['tracking_exception'] = [
+    $form['advanced_settings']['tracking']['tracking_exception'] = [
       '#title' => $this->t('Do not track the following mails'),
       '#type' => 'textarea',
       '#default_value' => $config->get('tracking_exception'),
       '#description' => $this->t('Add all mail keys you want to except from tracking. One key per line. Format: module:key (e.g.: user:password_reset)'),
     ];
+
+    $form['advanced_settings']['format'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Format'),
+    ];
+
     $options = [
       '' => $this->t('None'),
     ];
@@ -113,19 +150,20 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
     foreach ($filter_formats as $filter_format_id => $filter_format) {
       $options[$filter_format_id] = $filter_format->label();
     }
-    $form['advanced_settings']['format_filter'] = [
+    $form['advanced_settings']['format']['format_filter'] = [
       '#title' => $this->t('Format filter'),
       '#type' => 'select',
       '#options' => $options,
       '#default_value' => $config->get('format_filter'),
       '#description' => $this->t('Format filter to use to render the message'),
     ];
-    $form['advanced_settings']['use_theme'] = [
+    $form['advanced_settings']['format']['use_theme'] = [
       '#title' => $this->t('Use theme'),
       '#type' => 'checkbox',
       '#default_value' => $config->get('use_theme'),
       '#description' => $this->t('Enable to pass the message through a theme function. Default "mailgun" or pass one with $message["params"]["theme"]'),
     ];
+
     $form['advanced_settings']['use_queue'] = [
       '#title' => $this->t('Enable Queue'),
       '#type' => 'checkbox',
@@ -144,6 +182,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       ->set('api_key', $form_state->getValue('api_key'))
       ->set('working_domain', $form_state->getValue('working_domain'))
       ->set('debug_mode', $form_state->getValue('debug_mode'))
+      ->set('test_mode', $form_state->getValue('test_mode'))
       ->set('tracking_opens', $form_state->getValue('tracking_opens'))
       ->set('tracking_clicks', $form_state->getValue('tracking_clicks'))
       ->set('tracking_exception', $form_state->getValue('tracking_exception'))

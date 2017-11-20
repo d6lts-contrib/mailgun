@@ -5,6 +5,8 @@
  * Contains install/uninstall stuff.
  */
 
+use Drupal\mailgun\MailgunHandler;
+
 /**
  * Implements hook_install().
  */
@@ -44,8 +46,7 @@ function mailgun_requirements($phase) {
   ];
 
   if ($phase === 'runtime') {
-    // Check for Mailgun library.
-    if (class_exists('\Mailgun\Mailgun')) {
+    if (MailgunHandler::checkLibrary()) {
       $requirements['mailgun']['description'] = t('The Mailgun library is installed correctly.');
       $requirements['mailgun']['severity'] = REQUIREMENT_OK;
     }
