@@ -261,7 +261,7 @@ function mailgun_send(array $mailgun_message) {
     // Now, we need to get the working domain. This is generally the domain the
     // From address is on or the root domain of it.
     $working_domain = '';
-    if ($key = array_search($mail_domain, $domains) !== FALSE) {
+    if (in_array($mail_domain, $domains, TRUE)) {
       // Great. Found it.
       $working_domain = $mail_domain;
     }
