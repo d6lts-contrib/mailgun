@@ -75,7 +75,7 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
-      $container->get('config.factory')->get('mailgun.adminsettings'),
+      $container->get('config.factory')->get(MAILGUN_CONFIG_NAME),
       $container->get('logger.factory')->get('mailgun'),
       $container->get('renderer'),
       $container->get('queue'),
@@ -195,6 +195,11 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
     // Mailgun will accept the message but will not send it.
     if ($this->mailgunConfig->get('test_mode')) {
       $mailgun_message['o:testmode'] = 'yes';
+    }
+
+    // Add default tags by mail key if enabled.
+    if ($this->mailgunConfig->get('tagging_mailkey')) {
+      $mailgun_message['o:tag'][] = $message['id'];
     }
 
     // Make sure the files provided in the attachments array exist.

@@ -54,7 +54,7 @@ class SendMailBase extends QueueWorkerBase implements ContainerFactoryPluginInte
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('config.factory')->get('mailgun.adminsettings'),
+      $container->get('config.factory')->get(MAILGUN_CONFIG_NAME),
       $container->get('logger.factory')->get('mailgun'),
       $container->get('mailgun.mail_handler')
     );

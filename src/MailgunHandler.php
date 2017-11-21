@@ -53,7 +53,7 @@ class MailgunHandler {
    */
   public function sendMail(array $mailgun_message) {
     try {
-      $settings = $this->configFactory->get('mailgun.adminsettings');
+      $settings = $this->configFactory->get(MAILGUN_CONFIG_NAME);
       $api_key = $settings->get('api_key');
       $working_domain = $settings->get('working_domain');
 
@@ -124,7 +124,7 @@ class MailgunHandler {
    * Check if API settings are correct and not empty.
    */
   public static function checkApiSettings($show_message = FALSE) {
-    $mailgun_settings = \Drupal::config('mailgun.adminsettings');
+    $mailgun_settings = \Drupal::config(MAILGUN_CONFIG_NAME);
     $api_key = $mailgun_settings->get('api_key');
     $working_domain = $mailgun_settings->get('working_domain');
 

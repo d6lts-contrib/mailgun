@@ -20,7 +20,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'mailgun.adminsettings',
+      MAILGUN_CONFIG_NAME,
     ];
   }
 
@@ -47,14 +47,15 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     MailgunHandler::checkLibrary(TRUE);
-    $config = $this->config('mailgun.adminsettings');
-
-    $url = Url::fromUri('https://mailgun.com/app/domains');
-    $link = Link::fromTextAndUrl('mailgun.com/app/domains', $url);
+    $config = $this->config(MAILGUN_CONFIG_NAME);
 
     $form['description'] = [
       '#markup' => $this->t('Please refer to @link for your settings.', [
-        '@link' => $link->toString(),
+        '@link' => Link::fromTextAndUrl($this->t('dashboard'), Url::fromUri('https://mailgun.com/app/domains', [
+          'attributes' => [
+            'onclick' => "target='_blank'",
+          ],
+        ]))->toString(),
       ]),
     ];
 
@@ -103,8 +104,6 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Tracking'),
     ];
 
-    $url = Url::fromUri('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-opens');
-    $link = Link::fromTextAndUrl('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-opens', $url);
     $form['advanced_settings']['tracking']['tracking_opens'] = [
       '#title' => $this->t('Enable Track Opens'),
       '#type' => 'select',
@@ -114,11 +113,15 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
         'yes' => $this->t('Yes'),
       ],
       '#default_value' => $config->get('tracking_opens'),
-      '#description' => $this->t('Enable to track the opening of an email. See: @link', ['@link' => $link->toString()]),
+      '#description' => $this->t('Enable to track the opening of an email. See: @link for details.', [
+        '@link' => Link::fromTextAndUrl($this->t('Tracking Opens'), Url::fromUri('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-opens', [
+          'attributes' => [
+            'onclick' => "target='_blank'",
+          ],
+        ]))->toString(),
+      ]),
     ];
 
-    $url = Url::fromUri('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-clicks');
-    $link = Link::fromTextAndUrl('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-clicks', $url);
     $form['advanced_settings']['tracking']['tracking_clicks'] = [
       '#title' => $this->t('Enable Track Clicks'),
       '#type' => 'select',
@@ -129,7 +132,13 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
         'htmlonly' => $this->t('HTML only'),
       ],
       '#default_value' => $config->get('tracking_clicks'),
-      '#description' => $this->t('Enable to track the clicks of within an email. See: @link', ['@link' => $link->toString()]),
+      '#description' => $this->t('Enable to track the clicks of within an email. See: @link for details.', [
+        '@link' => Link::fromTextAndUrl($this->t('Tracking Clicks'), Url::fromUri('https://documentation.mailgun.com/en/latest/user_manual.html#tracking-clicks', [
+          'attributes' => [
+            'onclick' => "target='_blank'",
+          ],
+        ]))->toString(),
+      ]),
     ];
     $form['advanced_settings']['tracking']['tracking_exception'] = [
       '#title' => $this->t('Do not track the following mails'),
@@ -171,6 +180,19 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#description' => $this->t('Enable to queue mails and send them out in background by cron'),
     ];
 
+    $form['advanced_settings']['tagging_mailkey'] = [
+      '#title' => $this->t('Enable tags by mail key'),
+      '#type' => 'checkbox',
+      '#default_value' => $config->get('tagging_mailkey'),
+      '#description' => $this->t('Add tag by mail key. See @link for details.', [
+        '@link' => Link::fromTextAndUrl($this->t('Tagging'), Url::fromUri('https://documentation.mailgun.com/user_manual.html#tagging', [
+          'attributes' => [
+            'onclick' => "target='_blank'",
+          ],
+        ]))->toString(),
+      ]),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -178,7 +200,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->config('mailgun.adminsettings')
+    $this->config(MAILGUN_CONFIG_NAME)
       ->set('api_key', $form_state->getValue('api_key'))
       ->set('working_domain', $form_state->getValue('working_domain'))
       ->set('debug_mode', $form_state->getValue('debug_mode'))
@@ -189,6 +211,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       ->set('format_filter', $form_state->getValue('format_filter'))
       ->set('use_queue', $form_state->getValue('use_queue'))
       ->set('use_theme', $form_state->getValue('use_theme'))
+      ->set('tagging_mailkey', $form_state->getValue('tagging_mailkey'))
       ->save();
 
     drupal_set_message($this->t('The configuration options have been saved.'));

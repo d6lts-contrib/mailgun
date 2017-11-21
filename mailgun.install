@@ -5,6 +5,8 @@
  * Contains install/uninstall stuff.
  */
 
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 use Drupal\mailgun\MailgunHandler;
 
 /**
@@ -57,4 +59,34 @@ function mailgun_requirements($phase) {
   }
 
   return $requirements;
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Rename Mailgun config object name.
+ */
+function mailgun_update_8001() {
+  \Drupal::configFactory()->rename('mailgun.adminsettings', MAILGUN_CONFIG_NAME);
+  return t('Mailgun config object was renamed. Please visit configuration page to make sure that your configuration options are correct.');
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Enable tag by mail key. This option can be disabled in admin page.
+ */
+function mailgun_update_8002() {
+  \Drupal::configFactory()
+    ->getEditable(MAILGUN_CONFIG_NAME)
+    ->set('tagging_mailkey', TRUE)
+    ->save();
+
+  return t('Mailgun tag by mail key was enabled. See @link for details.', [
+    '@link' => Link::fromTextAndUrl(t('Tagging'), Url::fromUri('https://documentation.mailgun.com/user_manual.html#tagging', [
+      'attributes' => [
+        'onclick' => "target='_blank'",
+      ],
+    ]))->toString(),
+  ]);
 }
