@@ -166,6 +166,11 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
       $mailgun_message['bcc'] = $message['params']['bcc_mail'];
     }
 
+    // Add Reply-To as header according to Mailgun API.
+    if (!empty($message['reply-to'])) {
+      $mailgun_message['h:Reply-To'] = $message['reply-to'];
+    }
+
     // For a full list of allowed parameters,
     // see: https://documentation.mailgun.com/api-sending.html#sending.
     $allowed_params = [

@@ -85,10 +85,10 @@ class MailgunTestEmailForm extends FormBase {
     // TODO: Show current mail system to make sure that Mailgun is enabled.
     // But we can test all mail systems with this form.
     $form['to'] = [
-      '#type' => 'email',
+      '#type' => 'textfield',
       '#title' => $this->t('To'),
       '#required' => TRUE,
-      '#description' => $this->t('Email will be sent to this address.'),
+      '#description' => $this->t('Email will be sent to this address. You can use commas to separate multiple recipients.'),
       '#default_value' => $this->user->getEmail(),
     ];
 
@@ -105,6 +105,28 @@ If this e-mail is displayed correctly and delivered sound and safe, congrats! Yo
       '#type' => 'checkbox',
       '#title' => $this->t('Include attachment'),
       '#description' => $this->t('If checked, an image will be included as an attachment with the test e-mail.'),
+    ];
+
+    $form['extra'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Additional parameters'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#description' => $this->t('You may test more parameters to make sure they are working.'),
+    ];
+    $form['extra']['reply_to'] = [
+      '#type' => 'email',
+      '#title' => $this->t('Reply-To'),
+    ];
+    $form['extra']['cc'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('CC'),
+      '#description' => $this->t('You can use commas to separate multiple recipients.'),
+    ];
+    $form['extra']['bcc'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('BCC'),
+      '#description' => $this->t('You can use commas to separate multiple recipients.'),
     ];
 
     $form['actions']['submit'] = [
@@ -135,17 +157,23 @@ If this e-mail is displayed correctly and delivered sound and safe, congrats! Yo
     $to = $form_state->getValue('to');
 
     $params = [
-      'subject' => $this->t('Mailgun is working!'),
-      'body' => $form_state->getValue('body'),
+      'subject' => $this->t('Mailgun works!'),
+      'body' => [$form_state->getValue('body')],
     ];
 
     if (!empty($form_state->getValue('include_attachment'))) {
       $params['params']['attachments'][] = $this->fileSystem->realpath('core/misc/druplicon.png');
     }
 
-    // TODO: Reply-To parameter can be added to form.
-    // TODO: Other parameters (cc, bcc, etc.) can be added for testing as well.
-    $result = $this->mailManager->mail('mailgun', 'test_form_email', $to, $this->user->getPreferredLangcode(), $params, NULL, TRUE);
+    // Add CC / BCC values if they are set.
+    if (!empty($cc = $form_state->getValue('cc'))) {
+      $params['params']['cc'] = $cc;
+    }
+    if (!empty($bcc = $form_state->getValue('bcc'))) {
+      $params['params']['bcc'] = $bcc;
+    }
+
+    $result = $this->mailManager->mail('mailgun', 'test_form_email', $to, $this->user->getPreferredLangcode(), $params, $form_state->getValue('reply_to'), TRUE);
 
     if ($result['result'] === TRUE) {
       drupal_set_message(t('Successfully sent message to %to.', ['%to' => $to]));
