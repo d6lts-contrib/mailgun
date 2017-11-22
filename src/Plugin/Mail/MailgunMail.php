@@ -53,7 +53,7 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
   protected $queueFactory;
 
   /**
-   * MailGun mail handler.
+   * Mailgun handler.
    *
    * @var \Drupal\mailgun\MailgunHandler
    */

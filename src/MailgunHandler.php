@@ -13,11 +13,11 @@ use Mailgun\Exception;
 class MailgunHandler {
 
   /**
-   * The config factory.
+   * Configuration object.
    *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   * @var \Drupal\Core\Config\ImmutableConfig
    */
-  protected $configFactory;
+  protected $mailgunConfig;
 
   /**
    * Logger service.
@@ -25,6 +25,13 @@ class MailgunHandler {
    * @var \Drupal\Core\Logger\LoggerChannelInterface
    */
   protected $logger;
+
+  /**
+   * Mailgun client.
+   *
+   * @var \Mailgun\Mailgun
+   */
+  protected $mailgun;
 
   /**
    * Constructs a new \Drupal\mailgun\MailHandler object.
@@ -35,8 +42,9 @@ class MailgunHandler {
    *   A logger instance.
    */
   public function __construct(ConfigFactoryInterface $configFactory, LoggerInterface $logger) {
-    $this->configFactory = $configFactory;
+    $this->mailgunConfig = $configFactory->get(MAILGUN_CONFIG_NAME);
     $this->logger = $logger;
+    $this->mailgun = Mailgun::create($this->mailgunConfig->get('api_key'));
   }
 
   /**
@@ -53,27 +61,20 @@ class MailgunHandler {
    */
   public function sendMail(array $mailgun_message) {
     try {
-      $settings = $this->configFactory->get(MAILGUN_CONFIG_NAME);
-      $api_key = $settings->get('api_key');
-      $working_domain = $settings->get('working_domain');
-
-      if (empty($api_key) || empty($working_domain)) {
+      if (self::checkApiSettings() === FALSE) {
         $this->logger->error('Failed to send message from %from to %to. Please check the Mailgun settings.',
           [
             '%from' => $mailgun_message['from'],
             '%to' => $mailgun_message['to'],
           ]
         );
-
         return FALSE;
       }
 
-      $mailgun = Mailgun::create($api_key);
-
-      $response = $mailgun->messages()->send($working_domain, $mailgun_message);
+      $response = $this->mailgun->messages()->send($this->getDomain(), $mailgun_message);
 
       // Debug mode: log all messages.
-      if ($settings->get('debug_mode')) {
+      if ($this->mailgunConfig->get('debug_mode')) {
         $this->logger->notice('Successfully sent message from %from to %to. %id %message.',
           [
             '%from' => $mailgun_message['from'],
@@ -96,6 +97,34 @@ class MailgunHandler {
       );
       return FALSE;
     }
+  }
+
+  /**
+   * Get domains list from API.
+   */
+  public function getDomains() {
+    $domains = [];
+    try {
+      $result = $this->mailgun->domains()->index();
+      foreach ($result->getDomains() as $domain) {
+        $domains[$domain->getName()] = $domain->getName();
+      }
+    }
+    catch (Exception $e) {
+      $this->logger->error('Could not retrieve domains from Mailgun API. @code: @message.', [
+        '@code' => $e->getCode(),
+        '@message' => $e->getMessage(),
+      ]);
+    }
+
+    return $domains;
+  }
+
+  /**
+   * Get working domain for the message.
+   */
+  private function getDomain() {
+    return $this->mailgunConfig->get('working_domain');
   }
 
   /**

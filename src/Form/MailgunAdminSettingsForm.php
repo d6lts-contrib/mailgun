@@ -2,11 +2,13 @@
 
 namespace Drupal\mailgun\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\mailgun\MailgunHandler;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class MailgunAdminSettingsForm.
@@ -14,6 +16,32 @@ use Drupal\mailgun\MailgunHandler;
  * @package Drupal\mailgun\Form
  */
 class MailgunAdminSettingsForm extends ConfigFormBase {
+
+  /**
+   * Mailgun handler.
+   *
+   * @var \Drupal\mailgun\MailgunHandler
+   */
+  protected $mailgunHandler;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('mailgun.mail_handler')
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, MailgunHandler $mailgunHandler) {
+    parent::__construct($config_factory);
+
+    $this->mailgunHandler = $mailgunHandler;
+  }
 
   /**
    * {@inheritdoc}
@@ -59,22 +87,28 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       ]),
     ];
 
+    $api_key = $config->get('api_key');
     $form['api_key'] = [
       '#title' => $this->t('Mailgun API Key'),
       '#type' => 'textfield',
       '#required' => TRUE,
       '#description' => $this->t('Enter your API key.'),
-      '#default_value' => $config->get('api_key'),
+      '#default_value' => $api_key,
       '#attributes' => [
         'placeholder' => 'key-1234567890abcdefghijklmnopqrstuv',
       ],
     ];
 
+    // Don't show other settings until we don't set API key.
+    if (empty($api_key)) {
+      return parent::buildForm($form, $form_state);
+    }
+
     $form['working_domain'] = [
       '#title' => $this->t('Mailgun API Working Domain'),
-      '#type' => 'textfield',
+      '#type' => 'select',
       '#required' => TRUE,
-      '#description' => $this->t('Enter your API working domain.'),
+      '#options' => $this->mailgunHandler->getDomains(),
       '#default_value' => $config->get('working_domain'),
     ];
 
