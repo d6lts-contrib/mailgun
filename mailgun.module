@@ -58,6 +58,24 @@ function mailgun_permission() {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function mailgun_theme($existing, $type, $theme, $path) {
+  return [
+    'mailgun_message' => [
+      'variables' => [
+        'subject' => NULL,
+        'body' => NULL,
+        'message' => [],
+      ],
+      'template' => 'mailgun-message',
+      'path' => drupal_get_path('module', 'mailgun') . '/templates',
+      'mail theme' => TRUE,
+    ],
+  ];
+}
+
+/**
  * Implements hook_help().
  */
 function mailgun_help($path, $arg) {
@@ -176,6 +194,19 @@ function mailgun_check_library() {
     return TRUE;
   }
   return FALSE;
+}
+
+/**
+ * Prepares variables for mailgun-message.tpl.php.
+ *
+ * Adds id/module/key-specific hook suggestions.
+ *
+ * @see templates/mailgun-message.tpl.php
+ */
+function template_preprocess_mailgun_message(&$variables) {
+  $variables['theme_hook_suggestions'][] = 'mailgun_message__' . $variables['message']['id'];
+  $variables['theme_hook_suggestions'][] = 'mailgun_message__' . $variables['message']['module'];
+  $variables['theme_hook_suggestions'][] = 'mailgun_message__' . $variables['message']['key'];
 }
 
 /**

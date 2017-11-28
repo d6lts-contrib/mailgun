@@ -31,6 +31,13 @@ class MailgunMailSystem implements MailSystemInterface {
       $message['body'] = check_markup($message['body'], $format);
     }
 
+    // Wrap body with theme function.
+    $message['body'] = theme('mailgun_message', array(
+      'subject' => $message['subject'],
+      'body' => $message['body'],
+      'message' => $message,
+    ));
+
     return $message;
   }
 
