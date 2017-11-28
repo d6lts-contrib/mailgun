@@ -19,7 +19,7 @@
 function mailgun_admin_settings(array $form, array &$form_state) {
   // Check if the Mailgun PHP library is installed.
   if (!mailgun_check_library()) {
-    drupal_set_message(t('The Mailgun PHP library is not installed. Please see !link for more information.', array(
+    drupal_set_message(t('The Mailgun PHP library is not installed. Please see Installation section in the !link.', array(
       '!link' => l(t('documentation'), MAILGUN_DOCUMENTATION_LINK),
     )), 'error');
   }
@@ -66,7 +66,7 @@ function mailgun_admin_settings(array $form, array &$form_state) {
       '#title' => t('Domain'),
       '#type' => 'select',
       '#options' => $domain_options,
-      '#description' => t('Mails will be sent using this domain'),
+      '#description' => t('Mails will be sent using this domain.'),
       '#default_value' => variable_get('mailgun_domain', '_sender'),
     );
 
@@ -74,44 +74,22 @@ function mailgun_admin_settings(array $form, array &$form_state) {
       '#title' => t('Test mode'),
       '#type' => 'checkbox',
       '#default_value' => variable_get('mailgun_test', FALSE),
-      '#description' => t('Enables sending in test mode'),
-    );
-
-    $form['mailgun_queue'] = array(
-      '#title' => t('Queue mails'),
-      '#type' => 'checkbox',
-      '#description' => t('Mails will be queued and sent during cron runs. Useful for sending a large number of emails.'),
-      '#default_value' => variable_get('mailgun_queue', FALSE),
+      '#description' => t('Mailgun will accept the message but will not send it. This is useful for testing purposes.'),
     );
 
     $form['mailgun_log'] = array(
       '#title' => t('Log mails'),
       '#type' => 'checkbox',
-      '#description' => t('Log mails sent through Mailgun. Should not be enabled on production sites. Messages fail to send will be logged regardless of this setting.'),
+      '#description' => t('Log all mails sent through Mailgun. Messages fail to send will be logged regardless of this setting.'),
       '#default_value' => variable_get('mailgun_log', FALSE),
     );
 
-    $formats = array('_none' => t('- None -'));
-    foreach (filter_formats() as $format) {
-      if ($format->format === 'php_code') {
-        continue;
-      }
-      $formats[$format->format] = $format->name;
-    }
-    $form['mailgun_format'] = array(
-      '#title' => t('Text format'),
-      '#type' => 'select',
-      '#description' => t('Specify an additional text format to filter the message through before sending the email.'),
-      '#options' => $formats,
-      '#default_value' => variable_get('mailgun_format', '_none'),
-    );
-
-    $form['defaults'] = array(
+    $form['extra'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Default settings'),
+      '#title' => t('Additional settings'),
       '#description' => t('These default settings apply to messages sent using Mailgun and may be overriden on a per-message basis.'),
-      '#collapsible' => FALSE,
-      '#collapsed' => FALSE,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
     );
 
     // We have the same options for all settings.
@@ -121,7 +99,12 @@ function mailgun_admin_settings(array $form, array &$form_state) {
       'disabled' => t('Disabled'),
     );
 
-    $form['defaults']['mailgun_tracking'] = array(
+    $form['extra']['tracking'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Tracking'),
+    );
+
+    $form['extra']['tracking']['mailgun_tracking'] = array(
       '#title' => t('Enable tracking'),
       '#type' => 'select',
       '#options' => $options,
@@ -131,7 +114,7 @@ function mailgun_admin_settings(array $form, array &$form_state) {
       '#default_value' => variable_get('mailgun_tracking', 'default'),
     );
 
-    $form['defaults']['mailgun_tracking_clicks'] = array(
+    $form['extra']['tracking']['mailgun_tracking_clicks'] = array(
       '#title' => t('Enable click tracking'),
       '#type' => 'select',
       '#options' => $options,
@@ -139,7 +122,7 @@ function mailgun_admin_settings(array $form, array &$form_state) {
       '#default_value' => variable_get('mailgun_tracking_clicks', 'default'),
     );
 
-    $form['defaults']['mailgun_tracking_opens'] = array(
+    $form['extra']['tracking']['mailgun_tracking_opens'] = array(
       '#title' => t('Enable open tracking'),
       '#type' => 'select',
       '#options' => $options,
@@ -147,7 +130,29 @@ function mailgun_admin_settings(array $form, array &$form_state) {
       '#default_value' => variable_get('mailgun_tracking_opens', 'default'),
     );
 
-    $form['defaults']['mailgun_tagging_mailkey'] = array(
+    $formats = array('_none' => t('- None -'));
+    foreach (filter_formats() as $format) {
+      if ($format->format === 'php_code') {
+        continue;
+      }
+      $formats[$format->format] = $format->name;
+    }
+    $form['extra']['mailgun_format'] = array(
+      '#title' => t('Text format'),
+      '#type' => 'select',
+      '#description' => t('Specify an additional text format to filter the message through before sending the email.'),
+      '#options' => $formats,
+      '#default_value' => variable_get('mailgun_format', '_none'),
+    );
+
+    $form['extra']['mailgun_queue'] = array(
+      '#title' => t('Queue mails'),
+      '#type' => 'checkbox',
+      '#description' => t('Mails will be queued and sent during cron runs. Useful for sending a large number of emails.'),
+      '#default_value' => variable_get('mailgun_queue', FALSE),
+    );
+
+    $form['extra']['mailgun_tagging_mailkey'] = array(
       '#type' => 'checkbox',
       '#title' => t('Enable tags by mail key'),
       '#description' => t('See !url for details.', array(
