@@ -128,6 +128,12 @@ function mailgun_libraries_info() {
  * Implements hook_form_FORM_ID_alter().
  */
 function mailgun_form_libraries_admin_library_status_form_alter(&$form, &$form_state, $form_id) {
+  $library = drupal_array_get_nested_value($form_state, array(
+    'build_info', 'args', 0,
+  ));
+  if (empty($library['machine name']) || $library['machine name'] !== 'mailgun') {
+    return;
+  }
   // Libraries module provides own instruction "How to install the library".
   // We override it because this instruction is not correct and may confuse.
   $form['instructions'] = array(
