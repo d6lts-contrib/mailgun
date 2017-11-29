@@ -51,7 +51,7 @@ function mailgun_requirements($phase) {
   // Ensure translations don't break during installation.
   $t = get_t();
 
-  $requirements = [];
+  $requirements = array();
 
   if ($phase === 'runtime') {
     $requirements['mailgun']['title'] = $t('Mailgun');
