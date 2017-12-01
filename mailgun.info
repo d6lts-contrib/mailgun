@@ -2,7 +2,7 @@ package = Mail
 name = Mailgun
 description = "Provides integration with Mailgun's email sending API."
 core = 7.x
-php = 5.3
+php = 5.5
 configure = admin/config/system/mailgun
 
 files[] = mailgun.mail.inc
