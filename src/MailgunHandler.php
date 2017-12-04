@@ -3,6 +3,9 @@
 namespace Drupal\mailgun;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Egulias\EmailValidator\EmailLexer;
+use Egulias\EmailValidator\EmailParser;
+use Egulias\EmailValidator\EmailValidator;
 use Psr\Log\LoggerInterface;
 use Mailgun\Mailgun;
 use Mailgun\Exception;
@@ -50,7 +53,7 @@ class MailgunHandler {
   /**
    * Connects to Mailgun API and sends out the email.
    *
-   * @param array $mailgun_message
+   * @param array $mailgunMessage
    *   A message array, as described in
    *   https://documentation.mailgun.com/en/latest/api-sending.html#sending.
    *
@@ -59,26 +62,37 @@ class MailgunHandler {
    *
    * @see https://documentation.mailgun.com/en/latest/api-sending.html#sending
    */
-  public function sendMail(array $mailgun_message) {
+  public function sendMail(array $mailgunMessage) {
     try {
       if (self::checkApiSettings() === FALSE) {
         $this->logger->error('Failed to send message from %from to %to. Please check the Mailgun settings.',
           [
-            '%from' => $mailgun_message['from'],
-            '%to' => $mailgun_message['to'],
+            '%from' => $mailgunMessage['from'],
+            '%to' => $mailgunMessage['to'],
           ]
         );
         return FALSE;
       }
 
-      $response = $this->mailgun->messages()->send($this->getDomain(), $mailgun_message);
+      $domain = $this->getDomain($mailgunMessage['from']);
+      if ($domain === FALSE) {
+        $this->logger->error('Failed to send message from %from to %to. Could not retrieve domain from sender info.',
+          [
+            '%from' => $mailgunMessage['from'],
+            '%to' => $mailgunMessage['to'],
+          ]
+        );
+        return FALSE;
+      }
+
+      $response = $this->mailgun->messages()->send($domain, $mailgunMessage);
 
       // Debug mode: log all messages.
       if ($this->mailgunConfig->get('debug_mode')) {
         $this->logger->notice('Successfully sent message from %from to %to. %id %message.',
           [
-            '%from' => $mailgun_message['from'],
-            '%to' => $mailgun_message['to'],
+            '%from' => $mailgunMessage['from'],
+            '%to' => $mailgunMessage['to'],
             '%id' => $response->getId(),
             '%message' => $response->getMessage(),
           ]
@@ -89,8 +103,8 @@ class MailgunHandler {
     catch (Exception $e) {
       $this->logger->error('Exception occurred while trying to send test email from %from to %to. @code: @message.',
         [
-          '%from' => $mailgun_message['from'],
-          '%to' => $mailgun_message['to'],
+          '%from' => $mailgunMessage['from'],
+          '%to' => $mailgunMessage['to'],
           '@code' => $e->getCode(),
           '@message' => $e->getMessage(),
         ]
@@ -123,49 +137,65 @@ class MailgunHandler {
   /**
    * Get working domain for the message.
    */
-  private function getDomain() {
-    return $this->mailgunConfig->get('working_domain');
+  private function getDomain($email) {
+    $domain = $this->mailgunConfig->get('working_domain');
+    if ($domain !== '_sender') {
+      return $domain;
+    }
+
+    $emailParser = new EmailParser(new EmailLexer());
+    $emailValidator = new EmailValidator();
+
+    if ($emailValidator->isValid($email) === TRUE) {
+      return $emailParser->parse($email)['domain'];
+    }
+
+    // Extract the domain from the sender's email address.
+    // Use regular expression to check since it could be either a plain email
+    // address or in the form "Name <example@example.com>".
+    $tokens = (preg_match('/^\s*(.+?)\s*<\s*([^>]+)\s*>$/', $email, $matches) === 1) ? explode('@', $matches[2]) : explode('@', $email);
+    return array_pop($tokens);
   }
 
   /**
    * Check Mailgun library and API settings.
    */
-  public static function status($show_message = FALSE) {
-    return self::checkLibrary($show_message) && self::checkApiSettings($show_message);
+  public static function status($showMessage = FALSE) {
+    return self::checkLibrary($showMessage) && self::checkApiSettings($showMessage);
   }
 
   /**
    * Check that Mailgun PHP SDK is installed correctly.
    */
-  public static function checkLibrary($show_message = FALSE) {
-    $library_status = class_exists('\Mailgun\Mailgun');
-    if ($show_message === FALSE) {
-      return $library_status;
+  public static function checkLibrary($showMessage = FALSE) {
+    $libraryStatus = class_exists('\Mailgun\Mailgun');
+    if ($showMessage === FALSE) {
+      return $libraryStatus;
     }
 
-    if ($library_status === FALSE) {
+    if ($libraryStatus === FALSE) {
       drupal_set_message(t('The Mailgun library has not been installed correctly.'), 'warning');
     }
-    return $library_status;
+    return $libraryStatus;
   }
 
   /**
    * Check if API settings are correct and not empty.
    */
-  public static function checkApiSettings($show_message = FALSE) {
-    $mailgun_settings = \Drupal::config(MAILGUN_CONFIG_NAME);
-    $api_key = $mailgun_settings->get('api_key');
-    $working_domain = $mailgun_settings->get('working_domain');
+  public static function checkApiSettings($showMessage = FALSE) {
+    $mailgunSettings = \Drupal::config(MAILGUN_CONFIG_NAME);
+    $apiKey = $mailgunSettings->get('api_key');
+    $workingDomain = $mailgunSettings->get('working_domain');
 
-    if (empty($api_key) || empty($working_domain)) {
-      if ($show_message) {
+    if (empty($apiKey) || empty($workingDomain)) {
+      if ($showMessage) {
         drupal_set_message(t("Please check your API settings. API key and domain shouldn't be empty."), 'warning');
       }
       return FALSE;
     }
 
-    if (self::validateKey($api_key) === FALSE) {
-      if ($show_message) {
+    if (self::validateKey($apiKey) === FALSE) {
+      if ($showMessage) {
         drupal_set_message(t("Couldn't connect to the Mailgun API. Please check your API settings."), 'warning');
       }
       return FALSE;

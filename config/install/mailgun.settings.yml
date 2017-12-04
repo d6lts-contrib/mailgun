@@ -1,5 +1,5 @@
 api_key: ''
-working_domain: ''
+working_domain: '_sender'
 debug_mode: false
 test_mode: false
 tracking_opens: ''

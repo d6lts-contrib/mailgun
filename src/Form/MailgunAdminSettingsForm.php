@@ -107,8 +107,9 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
     $form['working_domain'] = [
       '#title' => $this->t('Mailgun API Working Domain'),
       '#type' => 'select',
-      '#required' => TRUE,
-      '#options' => $this->mailgunHandler->getDomains(),
+      '#options' => [
+        '_sender' => $this->t('Get domain from sender address'),
+      ] + $this->mailgunHandler->getDomains(),
       '#default_value' => $config->get('working_domain'),
     ];
 
