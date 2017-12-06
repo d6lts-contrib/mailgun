@@ -98,6 +98,13 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
       $message['body'] = implode("\n\n", $message['body']);
     }
 
+    // If text format is specified in settings, run the message through it.
+    $format = $this->mailgunConfig->get('format_filter');
+    if (!empty($format)) {
+      $message['body'] = check_markup($message['body'], $format, $message['langcode']);
+    }
+
+    // Wrap body with theme function.
     if ($this->mailgunConfig->get('use_theme')) {
       $render = [
         '#theme' => isset($message['params']['theme']) ? $message['params']['theme'] : 'mailgun',
@@ -107,13 +114,6 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
 
       $converter = new Html2Text($message['body']);
       $message['plain'] = $converter->getText();
-    }
-
-    // If text format is specified in settings, run the message through it.
-    $format = $this->mailgunConfig->get('format_filter');
-
-    if (!empty($format)) {
-      $message['body'] = check_markup($message['body'], $format, $message['langcode']);
     }
 
     return $message;
