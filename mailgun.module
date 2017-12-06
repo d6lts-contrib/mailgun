@@ -380,5 +380,6 @@ function mailgun_send(array $mailgun_message) {
       '@code' => $e->getCode(),
       '@message' => $e->getMessage(),
     ));
+    return FALSE;
   }
 }

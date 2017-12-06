@@ -182,6 +182,12 @@ function mailgun_admin_settings_validate($form, &$form_state) {
     // The API key has changed. Perform validation.
     $form_state['values']['mailgun_api_key'] = trim($form_state['values']['mailgun_api_key']);
     $client = mailgun_get_client($form_state['values']['mailgun_api_key']);
+
+    if ($client === FALSE) {
+      drupal_set_message(t('Could not connect to Mailgun API. Please check your settings'), 'warning');
+      return;
+    }
+
     try {
       $client->domains()->index();
       drupal_set_message(t('Your API key has been successfully validated.'));
