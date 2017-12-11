@@ -187,15 +187,15 @@ If this e-mail is displayed correctly and delivered sound and safe, congrats! Yo
     ];
 
     if (!empty($form_state->getValue('include_attachment'))) {
-      $params['params']['attachments'][] = $this->fileSystem->realpath('core/misc/druplicon.png');
+      $params['attachments'][] = $this->fileSystem->realpath('core/misc/druplicon.png');
     }
 
     // Add CC / BCC values if they are set.
     if (!empty($cc = $form_state->getValue('cc'))) {
-      $params['params']['cc'] = $cc;
+      $params['cc'] = $cc;
     }
     if (!empty($bcc = $form_state->getValue('bcc'))) {
-      $params['params']['bcc'] = $bcc;
+      $params['bcc'] = $bcc;
     }
 
     $result = $this->mailManager->mail('mailgun', 'test_form_email', $to, $this->user->getPreferredLangcode(), $params, $form_state->getValue('reply_to'), TRUE);

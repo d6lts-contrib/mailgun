@@ -150,15 +150,18 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
       $mailgun_message['text'] = $converter->getText();
     }
 
-    // Add the CC and BCC fields if not empty.
-    if (!empty($message['params']['cc'])) {
-      $mailgun_message['cc'] = $message['params']['cc'];
+    // Add Cc / Bcc headers.
+    if (!empty($message['headers']['Cc'])) {
+      $mailgun_message['cc'] = $message['headers']['Cc'];
     }
-    if (!empty($message['params']['bcc'])) {
-      $mailgun_message['bcc'] = $message['params']['bcc'];
+    if (!empty($message['headers']['Bcc'])) {
+      $mailgun_message['bcc'] = $message['headers']['Bcc'];
     }
 
-    // Support CC / BCC provided by webform module.
+    // Remove Cc / Bcc from headers to avoid strange behaviors.
+    unset($message['headers']['Cc'], $message['headers']['Bcc']);
+
+    // Support Cc / Bcc provided by webform module.
     if (!empty($message['params']['cc_mail'])) {
       $mailgun_message['cc'] = $message['params']['cc_mail'];
     }
