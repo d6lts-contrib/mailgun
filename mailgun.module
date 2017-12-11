@@ -11,6 +11,17 @@ define('MAILGUN_DOCUMENTATION_LINK', 'https://www.drupal.org/node/2547591');
 define('MAILGUN_DASHBOARD_LINK', 'https://mailgun.com/app/dashboard');
 define('MAILGUN_ADMIN_PAGE', 'admin/config/services/mailgun');
 
+define('MAILGUN_API_KEY', 'mailgun_api_key');
+define('MAILGUN_DOMAIN', 'mailgun_domain');
+define('MAILGUN_TEST_MODE', 'mailgun_test');
+define('MAILGUN_LOG_EMAILS', 'mailgun_log');
+define('MAILGUN_TRACKING', 'mailgun_tracking');
+define('MAILGUN_TRACKING_CLICKS', 'mailgun_tracking_clicks');
+define('MAILGUN_TRACKING_OPENS', 'mailgun_tracking_opens');
+define('MAILGUN_FORMAT', 'mailgun_format');
+define('MAILGUN_QUEUE', 'mailgun_queue');
+define('MAILGUN_TAGGING_MAILKEY', 'mailgun_tagging_mailkey');
+
 /**
  * Implements hook_menu().
  */
