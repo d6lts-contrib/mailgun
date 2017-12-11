@@ -235,9 +235,11 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    // Set default value for domain when we submit form for the first time.
+    $domain = $form_state->getValue('working_domain');
     $this->config(MAILGUN_CONFIG_NAME)
       ->set('api_key', $form_state->getValue('api_key'))
-      ->set('working_domain', $form_state->getValue('working_domain'))
+      ->set('working_domain', empty($domain) ? '_sender' : $domain)
       ->set('debug_mode', $form_state->getValue('debug_mode'))
       ->set('test_mode', $form_state->getValue('test_mode'))
       ->set('tracking_opens', $form_state->getValue('tracking_opens'))
