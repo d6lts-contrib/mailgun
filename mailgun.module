@@ -203,6 +203,16 @@ function mailgun_check_library() {
 }
 
 /**
+ * Check if Mailgun API settings are configured.
+ *
+ * @return bool
+ *   TRUE if api settings are configured, FALSE otherwise.
+ */
+function mailgun_check_api_settings() {
+  return !empty(variable_get('mailgun_api_key', '')) && !empty(variable_get('mailgun_domain', ''));
+}
+
+/**
  * Prepares variables for mailgun-message.tpl.php.
  *
  * Adds id/module/key-specific hook suggestions.
