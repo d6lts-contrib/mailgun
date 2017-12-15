@@ -158,17 +158,6 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
       $mailgun_message['bcc'] = $message['headers']['Bcc'];
     }
 
-    // Remove Cc / Bcc from headers to avoid strange behaviors.
-    unset($message['headers']['Cc'], $message['headers']['Bcc']);
-
-    // Support Cc / Bcc provided by webform module.
-    if (!empty($message['params']['cc_mail'])) {
-      $mailgun_message['cc'] = $message['params']['cc_mail'];
-    }
-    if (!empty($message['params']['bcc_mail'])) {
-      $mailgun_message['bcc'] = $message['params']['bcc_mail'];
-    }
-
     // Add Reply-To as header according to Mailgun API.
     if (!empty($message['reply-to'])) {
       $mailgun_message['h:Reply-To'] = $message['reply-to'];
