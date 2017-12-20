@@ -60,7 +60,7 @@ class MailgunMailSystem implements MailSystemInterface {
       'from' => $message['from'],
       'to' => $message['to'],
       'subject' => $message['subject'],
-      'text' => drupal_html_to_text($message['body']),
+      'text' => mailsystem_html_to_text($message['body']),
       'html' => $message['body'],
     );
 
