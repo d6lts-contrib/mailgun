@@ -76,8 +76,12 @@ function mailgun_mail($key, &$message, $params) {
       $message['body'] = $message['params']['body'];
       $message['subject'] = $message['params']['subject'];
 
-      $message['headers']['Cc'] = $message['params']['cc'];
-      $message['headers']['Bcc'] = $message['params']['bcc'];
+      if (isset($params['cc'])) {
+        $message['headers']['Cc'] = $params['cc'];
+      }
+      if (isset($params['bcc'])) {
+        $message['headers']['Bcc'] = $params['bcc'];
+      }
 
       // Here we have just an example how we can add sender name to emails.
       // Everyone can implement this in  hook_mail for own emails or in
