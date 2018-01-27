@@ -2,12 +2,15 @@
 
 namespace Drupal\Tests\mailgun\Functional;
 
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Tests\BrowserTestBase;
 
 /**
  * Base test class for Mailgun functional tests.
  */
 abstract class MailgunFunctionalTestBase extends BrowserTestBase {
+
+  use StringTranslationTrait;
 
   /**
    * Modules to enable.
@@ -24,5 +27,20 @@ abstract class MailgunFunctionalTestBase extends BrowserTestBase {
   protected $permissions = [
     'administer mailgun',
   ];
+
+  /**
+   * An editable config.
+   *
+   * @var \Drupal\Core\Config\Config
+   */
+  protected $mailgunConfig;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    parent::setUp();
+    $this->mailgunConfig = $this->config(MAILGUN_CONFIG_NAME);
+  }
 
 }
