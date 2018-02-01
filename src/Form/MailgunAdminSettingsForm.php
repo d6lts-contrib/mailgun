@@ -179,7 +179,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Do not track the following mails'),
       '#type' => 'textarea',
       '#default_value' => $config->get('tracking_exception'),
-      '#description' => $this->t('Add all mail keys you want to except from tracking. One key per line. Format: module:key (e.g.: user:password_reset)'),
+      '#description' => $this->t('Add all mail keys you want to except from tracking. One key per line. Format: module:key (e.g.: user:password_reset).'),
     ];
 
     $form['advanced_settings']['format'] = [
@@ -199,20 +199,20 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#type' => 'select',
       '#options' => $options,
       '#default_value' => $config->get('format_filter'),
-      '#description' => $this->t('Format filter to use to render the message'),
+      '#description' => $this->t('Format filter to use to render the message.'),
     ];
     $form['advanced_settings']['format']['use_theme'] = [
       '#title' => $this->t('Use theme'),
       '#type' => 'checkbox',
       '#default_value' => $config->get('use_theme'),
-      '#description' => $this->t('Enable to pass the message through a theme function. Default "mailgun" or pass one with $message["params"]["theme"]'),
+      '#description' => $this->t('Enable to pass the message through a theme function. Default "mailgun" or pass one with $message["params"]["theme"].'),
     ];
 
     $form['advanced_settings']['use_queue'] = [
       '#title' => $this->t('Enable Queue'),
       '#type' => 'checkbox',
       '#default_value' => $config->get('use_queue'),
-      '#description' => $this->t('Enable to queue mails and send them out in background by cron'),
+      '#description' => $this->t('Enable to queue emails and send them out during cron run.'),
     ];
 
     $form['advanced_settings']['tagging_mailkey'] = [
@@ -220,7 +220,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#type' => 'checkbox',
       '#default_value' => $config->get('tagging_mailkey'),
       '#description' => $this->t('Add tag by mail key. See @link for details.', [
-        '@link' => Link::fromTextAndUrl($this->t('Tagging'), Url::fromUri('https://documentation.mailgun.com/user_manual.html#tagging', [
+        '@link' => Link::fromTextAndUrl($this->t("Mailgun's tagging documentation"), Url::fromUri('https://documentation.mailgun.com/user_manual.html#tagging', [
           'attributes' => [
             'onclick' => "target='_blank'",
           ],
