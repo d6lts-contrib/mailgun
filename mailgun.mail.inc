@@ -142,7 +142,7 @@ class MailgunMailSystem implements MailSystemInterface {
               'filePath' => $temp_f_meta_data['uri'],
             );
             if (array_key_exists('filename', $attachment)) {
-              $_attachment['remoteName'] = $attachment['filename'];
+              $_attachment['filename'] = $_attachment['remoteName'] = $attachment['filename'];
             }
             $params['attachment'][] = $_attachment;
           }
@@ -151,7 +151,7 @@ class MailgunMailSystem implements MailSystemInterface {
               'filePath' => $attachment['filepath'],
             );
             if (array_key_exists('filename', $attachment)) {
-              $_attachment['remoteName'] = $attachment['filename'];
+              $_attachment['filename'] = $_attachment['remoteName'] = $attachment['filename'];
             }
             $params['attachment'][] = $_attachment;
           }
