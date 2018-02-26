@@ -111,9 +111,6 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
         '#message' => $message,
       ];
       $message['body'] = $this->renderer->renderRoot($render);
-
-      $converter = new Html2Text($message['body']);
-      $message['plain'] = $converter->getText();
     }
 
     return $message;
