@@ -11,6 +11,7 @@ use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\mailgun\MailgunHandler;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
  * Class MailgunTestEmailForm.
@@ -48,13 +49,21 @@ class MailgunTestEmailForm extends FormBase {
   protected $fileSystem;
 
   /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
    * MailgunTestEmailForm constructor.
    */
-  public function __construct(MailgunHandler $mailgunHandler, AccountProxyInterface $user, MailManager $mailManager, FileSystem $fileSystem) {
+  public function __construct(MailgunHandler $mailgunHandler, AccountProxyInterface $user, MailManager $mailManager, FileSystem $fileSystem, ModuleHandlerInterface $moduleHandler) {
     $this->mailgunHandler = $mailgunHandler;
     $this->user = $user;
     $this->mailManager = $mailManager;
     $this->fileSystem = $fileSystem;
+    $this->moduleHandler = $moduleHandler;
   }
 
   /**
@@ -65,7 +74,8 @@ class MailgunTestEmailForm extends FormBase {
       $container->get('mailgun.mail_handler'),
       $container->get('current_user'),
       $container->get('plugin.manager.mail'),
-      $container->get('file_system')
+      $container->get('file_system'),
+      $container->get('module_handler')
     );
   }
 
@@ -197,9 +207,15 @@ If this e-mail is displayed correctly and delivered sound and safe, congrats! Yo
       drupal_set_message(t('Successfully sent message to %to.', ['%to' => $to]));
     }
     else {
-      drupal_set_message(t('Something went wrong. Please check @logs for details.', [
-        '@logs' => Link::createFromRoute($this->t('logs'), 'dblog.overview')->toString(),
-      ]));
+      if ($this->moduleHandler->moduleExists('dblog')) {
+        drupal_set_message(t('Something went wrong. Please check @logs for details.', [
+          '@logs' => Link::createFromRoute($this->t('logs'), 'dblog.overview')
+            ->toString(),
+        ]), 'warning');
+      }
+      else {
+        drupal_set_message(t('Something went wrong. Please check logs for details.'), 'warning');
+      }
     }
   }
 
