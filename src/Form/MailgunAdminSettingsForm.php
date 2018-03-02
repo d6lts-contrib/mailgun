@@ -92,11 +92,8 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Mailgun API Key'),
       '#type' => 'textfield',
       '#required' => TRUE,
-      '#description' => $this->t('Enter your API key.'),
+      '#description' => $this->t('Enter your API key. It should be similar to: @key', ['@key' => 'key-1234567890abcdefghijklmnopqrstu']),
       '#default_value' => $api_key,
-      '#attributes' => [
-        'placeholder' => 'key-1234567890abcdefghijklmnopqrstuv',
-      ],
     ];
 
     // Don't show other settings until we don't set API key.
