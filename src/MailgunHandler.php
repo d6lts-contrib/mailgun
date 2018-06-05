@@ -101,12 +101,13 @@ class MailgunHandler {
       return TRUE;
     }
     catch (Exception $e) {
-      $this->logger->error('Exception occurred while trying to send test email from %from to %to. @code: @message.',
+      $this->logger->error('Exception occurred while trying to send test email from %from to %to. @code: @message @responseBodyMessage.',
         [
           '%from' => $mailgunMessage['from'],
           '%to' => $mailgunMessage['to'],
           '@code' => $e->getCode(),
           '@message' => $e->getMessage(),
+          '@responseBodyMessage' => $e->getResponseBody()['message']
         ]
       );
       return FALSE;
