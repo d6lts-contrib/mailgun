@@ -2,11 +2,11 @@
 
 namespace Drupal\mailgun\Form;
 
-use Drupal\Core\File\FileSystem;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
-use Drupal\Core\Mail\MailManager;
+use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -37,14 +37,14 @@ class MailgunTestEmailForm extends FormBase {
   /**
    * Mail Manager.
    *
-   * @var \Drupal\Core\Mail\MailManager
+   * @var \Drupal\Core\Mail\MailManagerInterface
    */
   protected $mailManager;
 
   /**
    * File system.
    *
-   * @var \Drupal\Core\File\FileSystem
+   * @var \Drupal\Core\File\FileSystemInterface
    */
   protected $fileSystem;
 
@@ -58,7 +58,7 @@ class MailgunTestEmailForm extends FormBase {
   /**
    * MailgunTestEmailForm constructor.
    */
-  public function __construct(MailgunHandler $mailgunHandler, AccountProxyInterface $user, MailManager $mailManager, FileSystem $fileSystem, ModuleHandlerInterface $moduleHandler) {
+  public function __construct(MailgunHandler $mailgunHandler, AccountProxyInterface $user, MailManagerInterface $mailManager, FileSystemInterface $fileSystem, ModuleHandlerInterface $moduleHandler) {
     $this->mailgunHandler = $mailgunHandler;
     $this->user = $user;
     $this->mailManager = $mailManager;
