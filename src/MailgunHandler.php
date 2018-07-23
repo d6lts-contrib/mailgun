@@ -175,7 +175,7 @@ class MailgunHandler {
     }
 
     if ($libraryStatus === FALSE) {
-      drupal_set_message(t('The Mailgun library has not been installed correctly.'), 'warning');
+      \Drupal::messenger()->addMessage(t('The Mailgun library has not been installed correctly.'), 'warning');
     }
     return $libraryStatus;
   }
@@ -190,14 +190,14 @@ class MailgunHandler {
 
     if (empty($apiKey) || empty($workingDomain)) {
       if ($showMessage) {
-        drupal_set_message(t("Please check your API settings. API key and domain shouldn't be empty."), 'warning');
+        \Drupal::messenger()->addMessage(t("Please check your API settings. API key and domain shouldn't be empty."), 'warning');
       }
       return FALSE;
     }
 
     if (self::validateKey($apiKey) === FALSE) {
       if ($showMessage) {
-        drupal_set_message(t("Couldn't connect to the Mailgun API. Please check your API settings."), 'warning');
+        \Drupal::messenger()->addMessage(t("Couldn't connect to the Mailgun API. Please check your API settings."), 'warning');
       }
       return FALSE;
     }

@@ -204,17 +204,17 @@ If this e-mail is displayed correctly and delivered sound and safe, congrats! Yo
     $result = $this->mailManager->mail('mailgun', 'test_form_email', $to, $this->user->getPreferredLangcode(), $params, $form_state->getValue('reply_to'), TRUE);
 
     if ($result['result'] === TRUE) {
-      drupal_set_message(t('Successfully sent message to %to.', ['%to' => $to]));
+      $this->messenger()->addMessage($this->t('Successfully sent message to %to.', ['%to' => $to]));
     }
     else {
       if ($this->moduleHandler->moduleExists('dblog')) {
-        drupal_set_message(t('Something went wrong. Please check @logs for details.', [
+        $this->messenger()->addMessage($this->t('Something went wrong. Please check @logs for details.', [
           '@logs' => Link::createFromRoute($this->t('logs'), 'dblog.overview')
             ->toString(),
         ]), 'warning');
       }
       else {
-        drupal_set_message(t('Something went wrong. Please check logs for details.'), 'warning');
+        $this->messenger()->addMessage($this->t('Something went wrong. Please check logs for details.'), 'warning');
       }
     }
   }

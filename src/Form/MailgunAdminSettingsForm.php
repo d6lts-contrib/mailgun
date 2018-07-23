@@ -248,7 +248,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       ->set('tagging_mailkey', $form_state->getValue('tagging_mailkey'))
       ->save();
 
-    drupal_set_message($this->t('The configuration options have been saved.'));
+    $this->messenger()->addMessage($this->t('The configuration options have been saved.'));
   }
 
 }
