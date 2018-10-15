@@ -227,13 +227,17 @@ function mailgun_check_api_settings() {
  * Prepares variables for mailgun-message.tpl.php.
  *
  * Adds id/module/key-specific hook suggestions.
+ * For example, user password reset mail will have the following suggestions:
+ *  - mailgun_message__user_password_reset;
+ *  - mailgun_message__password_reset;
+ *  - mailgun_message__user.
  *
  * @see templates/mailgun-message.tpl.php
  */
 function template_preprocess_mailgun_message(&$variables) {
   $variables['theme_hook_suggestions'][] = 'mailgun_message__' . $variables['message']['id'];
-  $variables['theme_hook_suggestions'][] = 'mailgun_message__' . $variables['message']['module'];
   $variables['theme_hook_suggestions'][] = 'mailgun_message__' . $variables['message']['key'];
+  $variables['theme_hook_suggestions'][] = 'mailgun_message__' . $variables['message']['module'];
 }
 
 /**
