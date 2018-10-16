@@ -167,11 +167,25 @@ class MailgunMailSystem implements MailSystemInterface {
 
     $mailgun_message['params'] = $params;
 
-    // Queue the message if the setting is enabled.
+    // Queue the message if the setting is enabled and number of emails sent at
+    // once exceeds the threshold. Threshold is tested only for
+    // views_bulk_operations module. If the threshold is larger than zero only
+    // views_bulk_operations emails are queued.
     if (variable_get('mailgun_queue', FALSE)) {
-      $queue = DrupalQueue::get('mailgun_queue', TRUE);
-      $queue->createItem($mailgun_message);
-      return TRUE;
+      $queue_threshold = variable_get(MAILGUN_QUEUE_THRESHOLD, 0);
+      $queue_threshold_exceeded = FALSE;
+      if ($queue_threshold == 0) {
+        $queue_threshold_exceeded = TRUE;
+      }
+      else if (isset($message['params']['context']['progress']['total'])) {
+        $queue_threshold_exceeded = $message['params']['context']['progress']['total'] > $queue_threshold;
+      }
+
+      if ($queue_threshold_exceeded) {
+        $queue = DrupalQueue::get('mailgun_queue', TRUE);
+        $queue->createItem($mailgun_message);
+        return TRUE;
+      }
     }
 
     return mailgun_send($mailgun_message);

@@ -20,6 +20,7 @@ define('MAILGUN_TRACKING_CLICKS', 'mailgun_tracking_clicks');
 define('MAILGUN_TRACKING_OPENS', 'mailgun_tracking_opens');
 define('MAILGUN_FORMAT', 'mailgun_format');
 define('MAILGUN_QUEUE', 'mailgun_queue');
+define('MAILGUN_QUEUE_THRESHOLD', 'mailgun_queue_threshold');
 define('MAILGUN_TAGGING_MAILKEY', 'mailgun_tagging_mailkey');
 
 /**

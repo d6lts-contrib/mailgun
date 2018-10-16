@@ -79,6 +79,13 @@ function mailgun_variable_info($options) {
     'group' => 'mailgun',
   );
 
+  $variables[MAILGUN_QUEUE_THRESHOLD] = array(
+    'title' => t('Queue threshold', array(), $options),
+    'description' => t('Queue messages only if the number of sent messages exceeds this threshold. NOTE: Queueing with threshold works only for views_bulk_operations module.', array(), $options),
+    'default' => 0,
+    'group' => 'mailgun',
+  );
+
   $variables[MAILGUN_TAGGING_MAILKEY] = array(
     'title' => t('Enable tags by mail key', array(), $options),
     'description' => t('See !url for details.', array(
