@@ -102,22 +102,25 @@ class MailgunMailSystem implements MailSystemInterface {
       'o:tracking-clicks',
       'o:tracking-opens',
     );
-    foreach ($message['params'] as $key => $value) {
-      // Check if it's one of the known parameters.
-      $allowed = in_array($key, $allowed_params) ? TRUE : FALSE;
 
-      if ($allowed) {
-        $params[$key] = $value;
-      }
-      // Check for custom MIME headers or custom JSON data.
-      if (substr($key, 0, 2) == 'h:' || substr($key, 0, 2) == 'v:') {
-        $params[$key] = $value;
-      }
+    if (isset($message['params']) && is_array($message['params'])) {
+      foreach ($message['params'] as $key => $value) {
+        // Check if it's one of the known parameters.
+        $allowed = in_array($key, $allowed_params) ? TRUE : FALSE;
 
-      // Add additional HIME headers, like Reply-to if it exists.
-      if ($key === 'headers' && is_array($value)) {
-        foreach ($value as $headers_key => $headers_value) {
-          $params['h:' . $headers_key] = $headers_value;
+        if ($allowed) {
+          $params[$key] = $value;
+        }
+        // Check for custom MIME headers or custom JSON data.
+        if (substr($key, 0, 2) == 'h:' || substr($key, 0, 2) == 'v:') {
+          $params[$key] = $value;
+        }
+
+        // Add additional HIME headers, like Reply-to if it exists.
+        if ($key === 'headers' && is_array($value)) {
+          foreach ($value as $headers_key => $headers_value) {
+            $params['h:' . $headers_key] = $headers_value;
+          }
         }
       }
     }
