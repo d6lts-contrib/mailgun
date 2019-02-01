@@ -45,8 +45,8 @@ function mailgun_theme($existing, $type, $theme, $path) {
  */
 function mailgun_theme_suggestions_mailgun(array $variables) {
   $suggestions = [];
-  $suggestions[] = 'mailgun';
   $suggestions[] = 'mailgun__' . $variables['message']['module'];
+  $suggestions[] = 'mailgun__' . $variables['message']['key'];
   $suggestions[] = 'mailgun__' . $variables['message']['module'] . '__' . $variables['message']['key'];
   return $suggestions;
 }
