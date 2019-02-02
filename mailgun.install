@@ -54,18 +54,18 @@ function mailgun_requirements($phase) {
   ];
 
   if (MailgunHandler::checkLibrary() === FALSE) {
-    $requirements['mailgun']['description'] = t('The Mailgun library has not been installed correctly.');
+    $requirements['mailgun']['value'] = t('The Mailgun library has not been installed correctly.');
     $requirements['mailgun']['severity'] = REQUIREMENT_ERROR;
   }
   else {
     if (MailgunHandler::checkApiSettings() === FALSE) {
-      $requirements['mailgun']['description'] = t('The Mailgun library is installed but API settings are not configured. Please check your @link.', [
+      $requirements['mailgun']['value'] = t('The Mailgun library is installed but API settings are not configured. Please check your @link.', [
         '@link' => Link::createFromRoute(t('settings'), 'mailgun.admin_settings_form')->toString(),
       ]);
       $requirements['mailgun']['severity'] = REQUIREMENT_WARNING;
     }
     else {
-      $requirements['mailgun']['description'] = t('The Mailgun library is installed correctly. API settings are configured.');
+      $requirements['mailgun']['value'] = t('The Mailgun library is installed correctly. API settings are configured.');
       $requirements['mailgun']['severity'] = REQUIREMENT_OK;
     }
   }

@@ -77,4 +77,48 @@ interface MailgunHandlerInterface {
    */
   public function getDomains();
 
+  /**
+   * Validates Mailgun library and API settings.
+   *
+   * @param bool $showMessage
+   *   Whether error messages should be shown.
+   *
+   * @return bool
+   *   Whether the library installed and API settings are ok.
+   */
+  public function moduleStatus($showMessage = FALSE);
+
+  /**
+   * Validates Mailgun API key.
+   *
+   * @param string $key
+   *   The API key.
+   *
+   * @return bool
+   *   Whether the API key is valid.
+   */
+  public function validateMailgunApiKey($key);
+
+  /**
+   * Checks if API settings are correct and not empty.
+   *
+   * @param bool $showMessage
+   *   Whether error messages should be shown.
+   *
+   * @return bool
+   *   Whether API settings are valid.
+   */
+  public function validateMailgunApiSettings($showMessage = FALSE);
+
+  /**
+   * Checks if Mailgun PHP SDK is installed correctly.
+   *
+   * @param bool $showMessage
+   *   Whether error messages should be shown.
+   *
+   * @return bool
+   *   Whether the Mailgun PHP SDK is installed correctly.
+   */
+  public function validateMailgunLibrary($showMessage = FALSE);
+
 }
