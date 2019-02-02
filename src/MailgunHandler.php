@@ -39,15 +39,17 @@ class MailgunHandler {
   /**
    * Constructs a new \Drupal\mailgun\MailHandler object.
    *
+   * @param \Mailgun\Mailgun $mailgun_client
+   *   Mailgun PHP SDK Object.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    */
-  public function __construct(ConfigFactoryInterface $configFactory, LoggerInterface $logger) {
+  public function __construct(Mailgun $mailgun_client, ConfigFactoryInterface $configFactory, LoggerInterface $logger) {
     $this->mailgunConfig = $configFactory->get(MAILGUN_CONFIG_NAME);
     $this->logger = $logger;
-    $this->mailgun = Mailgun::create($this->mailgunConfig->get('api_key'));
+    $this->mailgun = $mailgun_client;
   }
 
   /**
