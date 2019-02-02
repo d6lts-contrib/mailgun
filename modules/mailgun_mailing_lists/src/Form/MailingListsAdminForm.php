@@ -66,8 +66,24 @@ class MailingListsAdminForm extends FormBase {
       '#type' => 'textfield',
       '#required' => TRUE,
       '#description' => $this->t('Enter the new list name'),
-      '#default_value' => '',
     ];
+    $form['create_new_list']['description'] = [
+      '#title' => $this->t('Description'),
+      '#type' => 'textarea',
+      '#description' => $this->t('Enter short description'),
+    ];
+    $form['create_new_list']['access_level'] = [
+      '#title' => $this->t('Access Level'),
+      '#type' => 'select',
+      '#description' => $this->t('Access level for a list'),
+      '#options' => [
+        'readonly' => $this->t('Read Only'),
+        'members' => $this->t('Members'),
+        'everyone' => $this->t('Everyone'),
+      ],
+      '#defaul_value' => 'readonly',
+    ];
+
     $form['create_new_list']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Create new list'),
@@ -84,6 +100,7 @@ class MailingListsAdminForm extends FormBase {
           'members' => $list->getMembersCount(),
           'description' => $list->getDescription(),
           'created' => $list->getCreatedAt()->format('d-m-Y H:i'),
+          'access_level' => $list->getAccessLevel(),
         ];
       }
       $form['lists'] = [
@@ -95,6 +112,7 @@ class MailingListsAdminForm extends FormBase {
           $this->t('members'),
           $this->t('Description'),
           $this->t('Created'),
+          $this->t('Access Level'),
         ],
       ];
     }
@@ -133,7 +151,7 @@ class MailingListsAdminForm extends FormBase {
     $address = $form_state->getValue('list_address');
     $lists = $this->mailgunClient->mailingList();
     try {
-      $lists->create($address, $name);
+      $lists->create($address, $name, $form_state->getValue('description'), $form_state->getValue('access_level'));
       $this->messenger()->addMessage($this->t('List @name was successfully created', ['@name' => $name]));
     }
     catch (HttpClientException $e) {
