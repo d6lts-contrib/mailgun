@@ -13,7 +13,7 @@ use Mailgun\Exception;
 /**
  * Mail handler to send out an email message array to the Mailgun API.
  */
-class MailgunHandler {
+class MailgunHandler implements MailgunHandlerInterface {
 
   /**
    * Configuration object.
@@ -53,16 +53,7 @@ class MailgunHandler {
   }
 
   /**
-   * Connects to Mailgun API and sends out the email.
-   *
-   * @param array $mailgunMessage
-   *   A message array, as described in
-   *   https://documentation.mailgun.com/en/latest/api-sending.html#sending.
-   *
-   * @return bool
-   *   TRUE if the mail was successfully accepted by the API, FALSE otherwise.
-   *
-   * @see https://documentation.mailgun.com/en/latest/api-sending.html#sending
+   * {@inheritdoc}
    */
   public function sendMail(array $mailgunMessage) {
     try {
@@ -117,7 +108,7 @@ class MailgunHandler {
   }
 
   /**
-   * Get domains list from API.
+   * {@inheritdoc}
    */
   public function getDomains() {
     $domains = [];
@@ -140,7 +131,7 @@ class MailgunHandler {
   }
 
   /**
-   * Get working domain for the message.
+   * {@inheritdoc}
    */
   private function getDomain($email) {
     $domain = $this->mailgunConfig->get('working_domain');
@@ -163,14 +154,14 @@ class MailgunHandler {
   }
 
   /**
-   * Check Mailgun library and API settings.
+   * {@inheritdoc}
    */
   public static function status($showMessage = FALSE) {
     return self::checkLibrary($showMessage) && self::checkApiSettings($showMessage);
   }
 
   /**
-   * Check that Mailgun PHP SDK is installed correctly.
+   * {@inheritdoc}
    */
   public static function checkLibrary($showMessage = FALSE) {
     $libraryStatus = class_exists('\Mailgun\Mailgun');
@@ -185,7 +176,7 @@ class MailgunHandler {
   }
 
   /**
-   * Check if API settings are correct and not empty.
+   * {@inheritdoc}
    */
   public static function checkApiSettings($showMessage = FALSE) {
     $mailgunSettings = \Drupal::config(MAILGUN_CONFIG_NAME);
@@ -210,7 +201,7 @@ class MailgunHandler {
   }
 
   /**
-   * Validates Mailgun API key.
+   * {@inheritdoc}
    */
   public static function validateKey($key) {
     if (self::checkLibrary() === FALSE) {

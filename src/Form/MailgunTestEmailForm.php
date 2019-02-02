@@ -9,8 +9,9 @@ use Drupal\Core\Link;
 use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\mailgun\MailgunHandler;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\mailgun\MailgunHandlerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
@@ -21,9 +22,9 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 class MailgunTestEmailForm extends FormBase {
 
   /**
-   * Drupal\mailgun\MailgunHandler definition.
+   * Drupal\mailgun\MailgunHandlerInterface definition.
    *
-   * @var \Drupal\mailgun\MailgunHandler
+   * @var \Drupal\mailgun\MailgunHandlerInterface
    */
   protected $mailgunHandler;
 
@@ -58,7 +59,7 @@ class MailgunTestEmailForm extends FormBase {
   /**
    * MailgunTestEmailForm constructor.
    */
-  public function __construct(MailgunHandler $mailgunHandler, AccountProxyInterface $user, MailManagerInterface $mailManager, FileSystemInterface $fileSystem, ModuleHandlerInterface $moduleHandler) {
+  public function __construct(MailgunHandlerInterface $mailgunHandler, AccountProxyInterface $user, MailManagerInterface $mailManager, FileSystemInterface $fileSystem, ModuleHandlerInterface $moduleHandler) {
     $this->mailgunHandler = $mailgunHandler;
     $this->user = $user;
     $this->mailManager = $mailManager;

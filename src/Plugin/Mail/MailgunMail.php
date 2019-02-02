@@ -7,7 +7,7 @@ use Drupal\Core\Mail\MailInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Render\RendererInterface;
-use Drupal\mailgun\MailgunHandler;
+use Drupal\mailgun\MailgunHandlerInterface;
 use Html2Text\Html2Text;
 use Drupal\Component\Utility\Html;
 use Psr\Log\LoggerInterface;
@@ -55,14 +55,14 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
   /**
    * Mailgun handler.
    *
-   * @var \Drupal\mailgun\MailgunHandler
+   * @var \Drupal\mailgun\MailgunHandlerInterface
    */
   protected $mailgunHandler;
 
   /**
    * Mailgun constructor.
    */
-  public function __construct(ImmutableConfig $settings, LoggerInterface $logger, RendererInterface $renderer, QueueFactory $queueFactory, MailgunHandler $mailgunHandler) {
+  public function __construct(ImmutableConfig $settings, LoggerInterface $logger, RendererInterface $renderer, QueueFactory $queueFactory, MailgunHandlerInterface $mailgunHandler) {
     $this->mailgunConfig = $settings;
     $this->logger = $logger;
     $this->renderer = $renderer;

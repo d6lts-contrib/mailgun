@@ -8,6 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\mailgun\MailgunHandler;
+use Drupal\mailgun\MailgunHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -20,7 +21,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
   /**
    * Mailgun handler.
    *
-   * @var \Drupal\mailgun\MailgunHandler
+   * @var \Drupal\mailgun\MailgunHandlerInterface
    */
   protected $mailgunHandler;
 
@@ -37,7 +38,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct(ConfigFactoryInterface $config_factory, MailgunHandler $mailgunHandler) {
+  public function __construct(ConfigFactoryInterface $config_factory, MailgunHandlerInterface $mailgunHandler) {
     parent::__construct($config_factory);
 
     $this->mailgunHandler = $mailgunHandler;
