@@ -107,7 +107,7 @@ class MailgunHandler {
           '%to' => $mailgunMessage['to'],
           '@code' => $e->getCode(),
           '@message' => $e->getMessage(),
-          '@responseBodyMessage' => $e->getResponseBody()['message']
+          '@responseBodyMessage' => $e->getResponseBody()['message'],
         ]
       );
       return FALSE;
@@ -126,10 +126,12 @@ class MailgunHandler {
       }
     }
     catch (Exception $e) {
-      $this->logger->error('Could not retrieve domains from Mailgun API. @code: @message.', [
-        '@code' => $e->getCode(),
-        '@message' => $e->getMessage(),
-      ]);
+      $this->logger->error('Could not retrieve domains from Mailgun API. @code: @message.',
+        [
+          '@code' => $e->getCode(),
+          '@message' => $e->getMessage(),
+        ]
+      );
     }
 
     return $domains;
