@@ -92,31 +92,13 @@ class MailgunTestEmailForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     MailgunHandler::status(TRUE);
 
-    // Show current mail system to make sure that Mailgun is enabled.
-    $systems = $this->mailManager->getDefinitions();
-    $formatter = \Drupal::config('mailsystem.settings')->get('defaults.formatter');
+    // Display a warning if Mailgun is not a default mailer.
     $sender = \Drupal::config('mailsystem.settings')->get('defaults.sender');
-    $options = [
-      '@formatter' => isset($systems[$formatter]) ? (string) $systems[$formatter]['label'] : $formatter,
-      '@sender' => isset($systems[$sender]) ? (string) $systems[$sender]['label'] : $sender,
-      '@link' => Link::createFromRoute($this->t('here'), 'mailsystem.settings')->toString(),
-    ];
-
-    $form['mailsystem_title'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'h6',
-      '#value' => $this->t('Current mail system'),
-    ];
-    $form['mailsystem_settings'] = [
-      '#theme' => 'item_list',
-      '#items' => [
-        $this->t('Formatter: @formatter', $options),
-        $this->t('Sender: @sender', $options),
-      ],
-    ];
-    $form['mailsystem_description'] = [
-      '#markup' => $this->t('Mail system settings can be changed @link.', $options),
-    ];
+    if ($sender != 'mailgun_mail') {
+      $this->messenger()->addMessage(t('Mailgun is not a default Mailsystem plugin. You may update settings at @link.', [
+        '@link' => Link::createFromRoute($this->t('here'), 'mailsystem.settings')->toString()
+      ]), 'warning');
+    }
 
     // We can test all mail systems with this form.
     $form['to'] = [
