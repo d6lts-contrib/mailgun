@@ -104,7 +104,7 @@ class MailgunHandler implements MailgunHandlerInterface {
         $this->logger->notice('Successfully sent message from %from to %to. %id %message.',
           [
             '%from' => $mailgunMessage['from'],
-            '%to' => $mailgunMessage['to'],
+            '%to' => is_array($mailgunMessage['to']) ? implode(', ', $mailgunMessage['to']) : $mailgunMessage['to'],
             '%id' => $response->getId(),
             '%message' => $response->getMessage(),
           ]
@@ -113,13 +113,12 @@ class MailgunHandler implements MailgunHandlerInterface {
       return TRUE;
     }
     catch (Exception $e) {
-      $this->logger->error('Exception occurred while trying to send test email from %from to %to. @code: @message @responseBodyMessage.',
+      $this->logger->error('Exception occurred while trying to send test email from %from to %to. Error code @code: @message',
         [
           '%from' => $mailgunMessage['from'],
-          '%to' => $mailgunMessage['to'],
+          '%to' => is_array($mailgunMessage['to']) ? implode(', ', $mailgunMessage['to']) : $mailgunMessage['to'],
           '@code' => $e->getCode(),
           '@message' => $e->getMessage(),
-          '@responseBodyMessage' => $e->getResponseBody()['message'],
         ]
       );
       return FALSE;
