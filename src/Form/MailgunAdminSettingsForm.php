@@ -233,21 +233,19 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Set default value for domain when we submit form for the first time.
-    $domain = $form_state->getValue('working_domain');
-    $this->config(MAILGUN_CONFIG_NAME)
-      ->set('api_key', $form_state->getValue('api_key'))
-      ->set('working_domain', empty($domain) ? '_sender' : $domain)
-      ->set('debug_mode', $form_state->getValue('debug_mode'))
-      ->set('test_mode', $form_state->getValue('test_mode'))
-      ->set('tracking_opens', $form_state->getValue('tracking_opens'))
-      ->set('tracking_clicks', $form_state->getValue('tracking_clicks'))
-      ->set('tracking_exception', $form_state->getValue('tracking_exception'))
-      ->set('format_filter', $form_state->getValue('format_filter'))
-      ->set('use_queue', $form_state->getValue('use_queue'))
-      ->set('use_theme', $form_state->getValue('use_theme'))
-      ->set('tagging_mailkey', $form_state->getValue('tagging_mailkey'))
-      ->save();
+    $config_keys = [
+      'working_domain', 'api_key', 'debug_mode', 'test_mode', 'tracking_opens',
+      'tracking_clicks', 'tracking_exception', 'format_filter', 'use_queue',
+      'use_theme', 'tagging_mailkey',
+    ];
+
+    $mailgun_config = $this->config(MAILGUN_CONFIG_NAME);
+    foreach ($config_keys as $config_key) {
+      if ($form_state->hasValue($config_key)) {
+        $mailgun_config->set($config_key, $form_state->getValue($config_key));
+      }
+    }
+    $mailgun_config->save();
 
     $this->messenger()->addMessage($this->t('The configuration options have been saved.'));
   }
