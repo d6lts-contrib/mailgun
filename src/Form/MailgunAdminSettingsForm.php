@@ -111,6 +111,18 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('working_domain'),
     ];
 
+    $form['api_endpoint'] = [
+      '#title' => $this->t('Mailgun Region'),
+      '#type' => 'select',
+      '#required' => TRUE,
+      '#description' => $this->t('Select which Mailgun region to use.'),
+      '#options' => [
+        'https://api.mailgun.net' => $this->t('Default (US)'),
+        'https://api.eu.mailgun.net' => $this->t('Europe'),
+      ],
+      '#default_value' => $config->get('api_endpoint'),
+    ];
+
     $form['debug_mode'] = [
       '#title' => $this->t('Enable Debug Mode'),
       '#type' => 'checkbox',
@@ -236,7 +248,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
     $config_keys = [
       'working_domain', 'api_key', 'debug_mode', 'test_mode', 'tracking_opens',
       'tracking_clicks', 'tracking_exception', 'format_filter', 'use_queue',
-      'use_theme', 'tagging_mailkey',
+      'use_theme', 'tagging_mailkey', 'api_endpoint',
     ];
 
     $mailgun_config = $this->config(MAILGUN_CONFIG_NAME);

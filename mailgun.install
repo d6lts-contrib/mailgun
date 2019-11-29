@@ -102,3 +102,17 @@ function mailgun_update_8002() {
     ]))->toString(),
   ]);
 }
+
+/**
+ * Implements hook_update_N().
+ *
+ * Set default API endpoint (US).
+ */
+function mailgun_update_8003() {
+  $mailgun_config = \Drupal::configFactory()->getEditable(MAILGUN_CONFIG_NAME);
+  $existing_endpoint = $mailgun_config->get('api_endpoint');
+  if (empty($existing_endpoint)) {
+    $mailgun_config->set('api_endpoint', 'https://api.mailgun.net')->save();
+    return t('Mailgun API endpoint was set to the default (US). Please visit the configuration page if you would like to switch to the European API endpoint.');
+  }
+}
