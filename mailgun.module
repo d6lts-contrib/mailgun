@@ -313,6 +313,9 @@ function mailgun_send(array $mailgun_message) {
     try {
       $result = $client->domains()->index();
       if (!empty($result)) {
+        if ($result->getTotalCount() > 100) {
+          $result = $client->domains()->index($result->getTotalCount());
+        }
         foreach ($result->getDomains() as $domain) {
           $domains[$domain->getName()] = $domain->getName();
         }

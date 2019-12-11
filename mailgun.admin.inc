@@ -61,9 +61,15 @@ function mailgun_admin_settings(array $form, array &$form_state) {
     );
     $result = $client->domains()->index();
     if (!empty($result)) {
-      foreach ($result->getDomains() as $domain) {
-        $domain_options[$domain->getName()] = $domain->getName();
+      if ($result->getTotalCount() > 100) {
+        $result = $client->domains()->index($result->getTotalCount());
       }
+      $options = [];
+      foreach ($result->getDomains() as $domain) {
+        $options[$domain->getName()] = $domain->getName();
+      }
+      ksort($options);
+      $domain_options = array_merge($domain_options, $options);
     }
 
     $form[MAILGUN_DOMAIN] = array(
