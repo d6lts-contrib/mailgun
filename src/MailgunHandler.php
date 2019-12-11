@@ -132,9 +132,16 @@ class MailgunHandler implements MailgunHandlerInterface {
     $domains = [];
     try {
       $result = $this->mailgun->domains()->index();
+
+      // By default, limit is 100 domains, but we want to load all of them.
+      if ($result->getTotalCount() > 100) {
+        $result = $this->mailgun->domains()->index($result->getTotalCount());
+      }
+
       foreach ($result->getDomains() as $domain) {
         $domains[$domain->getName()] = $domain->getName();
       }
+      ksort($domains);
     }
     catch (Exception $e) {
       $this->logger->error('Could not retrieve domains from Mailgun API. @code: @message.',
