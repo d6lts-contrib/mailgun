@@ -55,6 +55,13 @@ class MailgunMailSystem implements MailSystemInterface {
    * @see https://documentation.mailgun.com/api-sending.html#sending
    */
   public function mail(array $message) {
+    // Mailsystem 3.x removes the automatic loading of html_to_text.inc that
+    // was included in mailsystem_init() in version 2.x. Therefore, test to
+    // see if the function is available, and load it if not, before trying to
+    // use it.
+    if (!function_exists('mailsystem_html_to_text')) {
+      module_load_include('inc', 'mailsystem', 'html_to_text');
+    }
     // Build the Mailgun message array.
     $mailgun_message = array(
       'from' => $message['from'],
