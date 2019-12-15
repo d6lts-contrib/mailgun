@@ -80,7 +80,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
 
     $form['description'] = [
       '#markup' => $this->t('Please refer to @link for your settings.', [
-        '@link' => Link::fromTextAndUrl($this->t('dashboard'), Url::fromUri('https://mailgun.com/app/domains', [
+        '@link' => Link::fromTextAndUrl($this->t('dashboard'), Url::fromUri('https://app.mailgun.com/app/dashboard', [
           'attributes' => [
             'onclick' => "target='_blank'",
           ],
