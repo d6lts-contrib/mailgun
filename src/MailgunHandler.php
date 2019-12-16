@@ -110,7 +110,7 @@ class MailgunHandler implements MailgunHandlerInterface {
           ]
         );
       }
-      return TRUE;
+      return $response;
     }
     catch (Exception $e) {
       $this->logger->error('Exception occurred while trying to send test email from %from to %to. Error code @code: @message',
