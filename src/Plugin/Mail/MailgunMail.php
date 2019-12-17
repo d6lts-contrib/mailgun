@@ -132,7 +132,7 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
   public function mail(array $message) {
     // Build the Mailgun message array.
     $mailgun_message = [
-      'from' => $message['from'],
+      'from' => $message['headers']['From'],
       'to' => $message['to'],
       'subject' => $message['subject'],
       'text' => Html::escape($message['body']),
