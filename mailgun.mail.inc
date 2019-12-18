@@ -86,15 +86,16 @@ class MailgunMailSystem implements MailSystemInterface {
 
     $params = array();
 
-    // Populate default settings.
-    if (($variable = variable_get('mailgun_tracking', 'default')) !== 'default') {
-      $params['o:tracking'] = ($variable === 'enabled');
-    }
-    if (($variable = variable_get('mailgun_tracking_clicks', 'default')) !== 'default') {
-      $params['o:tracking-clicks'] = ($variable === 'enabled');
-    }
-    if (($variable = variable_get('mailgun_tracking_opens', 'default')) !== 'default') {
-      $params['o:tracking-opens'] = ($variable === 'enabled');
+    // Populate default tracking settings.
+    $tracking_settings = array(
+      'mailgun_tracking' => 'o:tracking',
+      'mailgun_tracking_clicks' => 'o:tracking-clicks',
+      'mailgun_tracking_opens' => 'o:tracking-opens',
+    );
+    foreach ($tracking_settings as $mailgun_variable => $mailgun_parameter) {
+      if (($variable_value = variable_get($mailgun_variable, 'default')) !== 'default') {
+        $params[$mailgun_parameter] = $variable_value === 'enabled' ? 'yes' : 'no';
+      }
     }
 
     // For a full list of allowed parameters,
