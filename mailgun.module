@@ -8,7 +8,7 @@
 use Mailgun\Mailgun;
 
 define('MAILGUN_DOCUMENTATION_LINK', 'https://www.drupal.org/node/2547591');
-define('MAILGUN_DASHBOARD_LINK', 'https://mailgun.com/app/dashboard');
+define('MAILGUN_DASHBOARD_LINK', 'https://app.mailgun.com/app/dashboard');
 define('MAILGUN_ADMIN_PAGE', 'admin/config/services/mailgun');
 
 define('MAILGUN_API_KEY', 'mailgun_api_key');
