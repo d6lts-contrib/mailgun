@@ -186,7 +186,7 @@ If this e-mail is displayed correctly and delivered sound and safe, congrats! Yo
 
     $result = $this->mailManager->mail('mailgun', 'test_form_email', $to, $this->user->getPreferredLangcode(), $params, $form_state->getValue('reply_to'), TRUE);
 
-    if ($result['result'] === TRUE) {
+    if (!empty($result)) {
       $this->messenger()->addMessage($this->t('Successfully sent message to %to.', ['%to' => $to]));
     }
     else {
