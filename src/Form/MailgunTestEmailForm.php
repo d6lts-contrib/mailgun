@@ -173,7 +173,7 @@ If this e-mail is displayed correctly and delivered sound and safe, congrats! Yo
     ];
 
     if (!empty($form_state->getValue('include_attachment'))) {
-      $params['attachments'][] = $this->fileSystem->realpath('core/misc/druplicon.png');
+      $params['attachments'][] = ['filepath' => $this->fileSystem->realpath('core/misc/druplicon.png')];
     }
 
     // Add CC / BCC values if they are set.

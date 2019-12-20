@@ -200,8 +200,8 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
     if (!empty($message['params']['attachments'])) {
       $attachments = [];
       foreach ($message['params']['attachments'] as $attachment) {
-        if (file_exists($attachment)) {
-          $attachments[] = ['filePath' => $attachment];
+        if (!empty($attachment['filepath']) && file_exists($attachment['filepath'])) {
+          $attachments[] = ['filePath' => $attachment['filepath']];
         }
       }
 
