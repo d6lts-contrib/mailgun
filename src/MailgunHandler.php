@@ -160,22 +160,22 @@ class MailgunHandler implements MailgunHandlerInterface {
   /**
    * {@inheritdoc}
    */
-  private function getDomain($email) {
+  public function getDomain($from) {
     $domain = $this->mailgunConfig->get('working_domain');
     if ($domain !== '_sender') {
       return $domain;
     }
 
     $emailParser = new EmailParser(new EmailLexer());
-    if ($this->emailValidator->isValid($email)) {
-      return $emailParser->parse($email)['domain'];
+    if ($this->emailValidator->isValid($from)) {
+      return $emailParser->parse($from)['domain'];
     }
 
     // Extract the domain from the sender's email address.
     // Use regular expression to check since it could be either a plain email
     // address or in the form "Name <example@example.com>".
-    $tokens = (preg_match('/^\s*(.+?)\s*<\s*([^>]+)\s*>$/', $email, $matches) === 1) ? explode('@', $matches[2]) : explode('@', $email);
-    return array_pop($tokens);
+    $tokens = (preg_match('/^\s*(.+?)\s*<\s*([^>]+)\s*>$/', $from, $matches) === 1) ? explode('@', $matches[2]) : explode('@', $from);
+    return !empty($tokens) ? array_pop($tokens) : FALSE;
   }
 
   /**

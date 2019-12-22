@@ -36,6 +36,17 @@ interface MailgunHandlerInterface {
   public function getDomains();
 
   /**
+   * Parses and returns domain based on the email "From" value.
+   *
+   * @param string $from
+   *   "From" parameter of the mail message.
+   *
+   * @return string|bool
+   *   Returns domain name or FALSE if we couldn't parse it.
+   */
+  public function getDomain($from);
+
+  /**
    * Validates Mailgun library and API settings.
    *
    * @param bool $showMessage
