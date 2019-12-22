@@ -9,7 +9,6 @@ use Drupal\Core\Link;
 use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
-use Drupal\mailgun\MailgunHandler;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\mailgun\MailgunHandlerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -59,12 +58,12 @@ class MailgunTestEmailForm extends FormBase {
   /**
    * MailgunTestEmailForm constructor.
    */
-  public function __construct(MailgunHandlerInterface $mailgunHandler, AccountProxyInterface $user, MailManagerInterface $mailManager, FileSystemInterface $fileSystem, ModuleHandlerInterface $moduleHandler) {
-    $this->mailgunHandler = $mailgunHandler;
+  public function __construct(MailgunHandlerInterface $mailgun_handler, AccountProxyInterface $user, MailManagerInterface $mail_manager, FileSystemInterface $file_system, ModuleHandlerInterface $module_handler) {
+    $this->mailgunHandler = $mailgun_handler;
     $this->user = $user;
-    $this->mailManager = $mailManager;
-    $this->fileSystem = $fileSystem;
-    $this->moduleHandler = $moduleHandler;
+    $this->mailManager = $mail_manager;
+    $this->fileSystem = $file_system;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -91,13 +90,13 @@ class MailgunTestEmailForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    MailgunHandler::status(TRUE);
+    $this->mailgunHandler->moduleStatus(TRUE);
 
     // Display a warning if Mailgun is not a default mailer.
-    $sender = \Drupal::config('mailsystem.settings')->get('defaults.sender');
+    $sender = $this->config('mailsystem.settings')->get('defaults.sender');
     if ($sender != 'mailgun_mail') {
-      $this->messenger()->addMessage(t('Mailgun is not a default Mailsystem plugin. You may update settings at @link.', [
-        '@link' => Link::createFromRoute($this->t('here'), 'mailsystem.settings')->toString()
+      $this->messenger()->addMessage($this->t('Mailgun is not a default Mailsystem plugin. You may update settings at @link.', [
+        '@link' => Link::createFromRoute($this->t('here'), 'mailsystem.settings')->toString(),
       ]), 'warning');
     }
 

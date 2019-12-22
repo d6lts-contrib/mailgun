@@ -75,7 +75,7 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
     return new static(
-      $container->get('config.factory')->get(MAILGUN_CONFIG_NAME),
+      $container->get('config.factory')->get(MailgunHandlerInterface::CONFIG_NAME),
       $container->get('logger.factory')->get('mailgun'),
       $container->get('renderer'),
       $container->get('queue'),

@@ -15,6 +15,11 @@ use Mailgun\Mailgun;
  */
 class MailgunFactoryTest extends KernelTestBase {
 
+  /**
+   * Modules to enable.
+   *
+   * @var array
+   */
   protected static $modules = ['mailgun'];
 
   /**

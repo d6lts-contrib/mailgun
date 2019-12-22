@@ -56,19 +56,21 @@ class MailgunHandler implements MailgunHandlerInterface {
    *
    * @param \Mailgun\Mailgun $mailgun_client
    *   Mailgun PHP SDK Object.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    * @param \Psr\Log\LoggerInterface $logger
    *   A logger instance.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger.
+   * @param \Drupal\Component\Utility\EmailValidatorInterface $email_validator
+   *   The email validator.
    */
-  public function __construct(Mailgun $mailgun_client, ConfigFactoryInterface $configFactory, LoggerInterface $logger, MessengerInterface $messenger, EmailValidatorInterface $emailValidator) {
-    $this->mailgunConfig = $configFactory->get(MAILGUN_CONFIG_NAME);
+  public function __construct(Mailgun $mailgun_client, ConfigFactoryInterface $config_factory, LoggerInterface $logger, MessengerInterface $messenger, EmailValidatorInterface $email_validator) {
+    $this->mailgunConfig = $config_factory->get(MailgunHandlerInterface::CONFIG_NAME);
     $this->logger = $logger;
     $this->mailgun = $mailgun_client;
     $this->messenger = $messenger;
-    $this->emailValidator = $emailValidator;
+    $this->emailValidator = $email_validator;
   }
 
   /**
@@ -178,53 +180,6 @@ class MailgunHandler implements MailgunHandlerInterface {
 
   /**
    * {@inheritdoc}
-   *
-   * @deprecated Scheduled for removal.
-   *   Use MailgunHandlerInterface::moduleStatus() service method instead.
-   */
-  public static function status($showMessage = FALSE) {
-    return \Drupal::service('mailgun.mail_handler')
-      ->moduleStatus($showMessage);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @deprecated Scheduled for removal.
-   *   Use MailgunHandlerInterface::validateMailgunLibrary() service method
-   *   instead.
-   */
-  public static function checkLibrary($showMessage = FALSE) {
-    return \Drupal::service('mailgun.mail_handler')
-      ->validateMailgunLibrary($showMessage);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @deprecated Scheduled for removal.
-   *   Use MailgunHandlerInterface::validateMailgunApiSettings() service method
-   *   instead.
-   */
-  public static function checkApiSettings($showMessage = FALSE) {
-    return \Drupal::service('mailgun.mail_handler')
-      ->validateMailgunApiSettings($showMessage);
-  }
-
-  /**
-   * {@inheritdoc}
-   *
-   * @deprecated Scheduled for removal.
-   *   Use MailgunHandlerInterface::validateMailgunApiKey() service method
-   *   instead.
-   */
-  public static function validateKey($key) {
-    return \Drupal::service('mailgun.mail_handler')
-      ->validateMailgunApiKey($key);
-  }
-
-  /**
-   * {@inheritdoc}
    */
   public function moduleStatus($showMessage = FALSE) {
     return $this->validateMailgunLibrary($showMessage)
@@ -258,14 +213,14 @@ class MailgunHandler implements MailgunHandlerInterface {
 
     if (empty($apiKey) || empty($workingDomain)) {
       if ($showMessage) {
-        $this->messenger->addMessage(t("Please check your API settings. API key and domain shouldn't be empty."), 'warning');
+        $this->messenger->addMessage("Please check your API settings. API key and domain shouldn't be empty.", 'warning');
       }
       return FALSE;
     }
 
     if (!$this->validateMailgunApiKey($apiKey)) {
       if ($showMessage) {
-        $this->messenger->addMessage(t("Couldn't connect to the Mailgun API. Please check your API settings."), 'warning');
+        $this->messenger->addMessage("Couldn't connect to the Mailgun API. Please check your API settings.", 'warning');
       }
       return FALSE;
     }
@@ -283,7 +238,7 @@ class MailgunHandler implements MailgunHandlerInterface {
     }
 
     if ($libraryStatus === FALSE) {
-      $this->messenger->addMessage(t('The Mailgun library has not been installed correctly.'), 'warning');
+      $this->messenger->addMessage('The Mailgun library has not been installed correctly.', 'warning');
     }
     return $libraryStatus;
   }

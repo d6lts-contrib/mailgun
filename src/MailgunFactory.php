@@ -24,7 +24,7 @@ class MailgunFactory {
    *   The config factory.
    */
   public function __construct(ConfigFactoryInterface $configFactory) {
-    $this->mailgunConfig = $configFactory->get(MAILGUN_CONFIG_NAME);
+    $this->mailgunConfig = $configFactory->get(MailgunHandlerInterface::CONFIG_NAME);
   }
 
   /**

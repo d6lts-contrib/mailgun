@@ -7,7 +7,6 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\mailgun\MailgunHandler;
 use Drupal\mailgun\MailgunHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -38,10 +37,9 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function __construct(ConfigFactoryInterface $config_factory, MailgunHandlerInterface $mailgunHandler) {
+  public function __construct(ConfigFactoryInterface $config_factory, MailgunHandlerInterface $mailgun_handler) {
     parent::__construct($config_factory);
-
-    $this->mailgunHandler = $mailgunHandler;
+    $this->mailgunHandler = $mailgun_handler;
   }
 
   /**
@@ -49,7 +47,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      MAILGUN_CONFIG_NAME,
+      MailgunHandlerInterface::CONFIG_NAME,
     ];
   }
 
@@ -66,7 +64,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
 
-    if (MailgunHandler::validateKey($form_state->getValue('api_key')) === FALSE) {
+    if ($this->mailgunHandler->validateMailgunApiKey($form_state->getValue('api_key')) === FALSE) {
       $form_state->setErrorByName('api_key', $this->t("Couldn't connect to the Mailgun API. Please check your API settings."));
     }
   }
@@ -75,8 +73,8 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    MailgunHandler::checkLibrary(TRUE);
-    $config = $this->config(MAILGUN_CONFIG_NAME);
+    $this->mailgunHandler->validateMailgunLibrary(TRUE);
+    $config = $this->config(MailgunHandlerInterface::CONFIG_NAME);
 
     $form['description'] = [
       '#markup' => $this->t('Please refer to @link for your settings.', [
@@ -251,7 +249,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       'use_theme', 'tagging_mailkey', 'api_endpoint',
     ];
 
-    $mailgun_config = $this->config(MAILGUN_CONFIG_NAME);
+    $mailgun_config = $this->config(MailgunHandlerInterface::CONFIG_NAME);
     foreach ($config_keys as $config_key) {
       if ($form_state->hasValue($config_key)) {
         $mailgun_config->set($config_key, $form_state->getValue($config_key));

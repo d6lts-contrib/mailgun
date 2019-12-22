@@ -3,6 +3,7 @@
 namespace Drupal\Tests\mailgun\Functional;
 
 use Drupal\Core\Url;
+use Drupal\mailgun\MailgunHandlerInterface;
 
 /**
  * Tests that all provided admin pages are reachable.
@@ -49,7 +50,7 @@ class MailgunAdminSettingsFormTest extends MailgunFunctionalTestBase {
     $this->submitSettingsForm($field_values, $this->t('The configuration options have been saved.'));
 
     // Rebuild config values after form submit.
-    $this->mailgunConfig = $this->config(MAILGUN_CONFIG_NAME);
+    $this->mailgunConfig = $this->config(MailgunHandlerInterface::CONFIG_NAME);
 
     // Test that all field values are stored in configuration.
     foreach ($field_values as $field_name => $field_value) {
