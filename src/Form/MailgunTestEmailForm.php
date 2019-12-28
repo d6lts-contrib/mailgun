@@ -94,7 +94,7 @@ class MailgunTestEmailForm extends FormBase {
 
     // Display a warning if Mailgun is not a default mailer.
     $sender = $this->config('mailsystem.settings')->get('defaults.sender');
-    if ($sender != 'mailgun_mail') {
+    if (!strstr($sender, 'mailgun_')) {
       $this->messenger()->addMessage($this->t('Mailgun is not a default Mailsystem plugin. You may update settings at @link.', [
         '@link' => Link::createFromRoute($this->t('here'), 'mailsystem.settings')->toString(),
       ]), 'warning');

@@ -220,7 +220,9 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Enable Queue'),
       '#type' => 'checkbox',
       '#default_value' => $config->get('use_queue'),
-      '#description' => $this->t('Enable to queue emails and send them out during cron run.'),
+      '#description' => $this->t('Enable to queue emails and send them out during cron run. You can also enable queue for specific email keys by selecting Mailgun mailer (queued) plugin in @link.', [
+        '@link' => Link::fromTextAndUrl($this->t('mail system configuration'), Url::fromRoute('mailsystem.settings'))->toString(),
+      ]),
     ];
 
     $form['advanced_settings']['tagging_mailkey'] = [

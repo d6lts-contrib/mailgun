@@ -16,21 +16,21 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class SendMailBase extends QueueWorkerBase implements ContainerFactoryPluginInterface {
 
   /**
-   * MailGun config.
+   * Mailgun config.
    *
    * @var \Drupal\Core\Config\ImmutableConfig
    */
   protected $mailgunConfig;
 
   /**
-   * MailGun Logger instance.
+   * Mailgun Logger instance.
    *
    * @var \Psr\Log\LoggerInterface
    */
   protected $logger;
 
   /**
-   * MailGun mail handler.
+   * Mailgun mail handler.
    *
    * @var \Drupal\mailgun\MailgunHandlerInterface
    */
@@ -39,11 +39,11 @@ class SendMailBase extends QueueWorkerBase implements ContainerFactoryPluginInte
   /**
    * SendMailBase constructor.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImmutableConfig $settings, LoggerInterface $logger, MailgunHandlerInterface $mailgunHandler) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ImmutableConfig $settings, LoggerInterface $logger, MailgunHandlerInterface $mailgun_handler) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->mailgunConfig = $settings;
     $this->logger = $logger;
-    $this->mailgunHandler = $mailgunHandler;
+    $this->mailgunHandler = $mailgun_handler;
   }
 
   /**
