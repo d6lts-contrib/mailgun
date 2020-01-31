@@ -43,7 +43,8 @@ function mailgun_admin_settings(array $form, array &$form_state) {
   $client = FALSE;
   if (!empty($key)) {
     try {
-      $client = mailgun_get_client($key);
+      $endpoint = !empty($form_state['values']['mailgun_api_endpoint']) ? $form_state['values']['mailgun_api_endpoint'] : '';
+      $client = mailgun_get_client($key, $endpoint);
     }
     catch (Exception $e) {
       watchdog('mailgun', 'An exception occurred. @code: @message', array(
@@ -72,13 +73,14 @@ function mailgun_admin_settings(array $form, array &$form_state) {
       $domain_options = array_merge($domain_options, $options);
     }
 
-    // TODO: Rebuild domains list on AJAX when change Mailgun API endpoint.
     $form[MAILGUN_DOMAIN] = array(
       '#title' => $variables[MAILGUN_DOMAIN]['title'],
       '#type' => 'select',
       '#options' => $domain_options,
       '#description' => $variables[MAILGUN_DOMAIN]['description'],
       '#default_value' => variable_get(MAILGUN_DOMAIN, '_sender'),
+      '#prefix' => '<div id="mailgun-domains-wrapper">',
+      '#suffix' => '</div>',
     );
 
     $form[MAILGUN_API_ENDPOINT] = array(
@@ -90,6 +92,10 @@ function mailgun_admin_settings(array $form, array &$form_state) {
       ],
       '#description' => $variables[MAILGUN_API_ENDPOINT]['description'],
       '#default_value' => variable_get(MAILGUN_API_ENDPOINT, $variables[MAILGUN_API_ENDPOINT]['default']),
+      '#ajax' => [
+        'wrapper' => 'mailgun-domains-wrapper',
+        'callback' => 'mailgun_admin_domains_callback',
+      ],
     );
 
     $form[MAILGUN_TEST_MODE] = array(
@@ -184,6 +190,13 @@ function mailgun_admin_settings(array $form, array &$form_state) {
   $form['#validate'][] = 'mailgun_admin_settings_validate';
 
   return $form;
+}
+
+/**
+ * AJAX callback for domains list.
+ */
+function mailgun_admin_domains_callback($form, $form_state) {
+  return $form[MAILGUN_DOMAIN];
 }
 
 /**
