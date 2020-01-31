@@ -72,12 +72,24 @@ function mailgun_admin_settings(array $form, array &$form_state) {
       $domain_options = array_merge($domain_options, $options);
     }
 
+    // TODO: Rebuild domains list on AJAX when change Mailgun API endpoint.
     $form[MAILGUN_DOMAIN] = array(
       '#title' => $variables[MAILGUN_DOMAIN]['title'],
       '#type' => 'select',
       '#options' => $domain_options,
       '#description' => $variables[MAILGUN_DOMAIN]['description'],
       '#default_value' => variable_get(MAILGUN_DOMAIN, '_sender'),
+    );
+
+    $form[MAILGUN_API_ENDPOINT] = array(
+      '#title' => $variables[MAILGUN_API_ENDPOINT]['title'],
+      '#type' => 'select',
+      '#options' => [
+        'https://api.mailgun.net' => t('Default (US)'),
+        'https://api.eu.mailgun.net' => t('Europe'),
+      ],
+      '#description' => $variables[MAILGUN_API_ENDPOINT]['description'],
+      '#default_value' => variable_get(MAILGUN_API_ENDPOINT, $variables[MAILGUN_API_ENDPOINT]['default']),
     );
 
     $form[MAILGUN_TEST_MODE] = array(

@@ -26,6 +26,13 @@ function mailgun_variable_info($options) {
     'group' => 'mailgun',
   );
 
+  $variables[MAILGUN_API_ENDPOINT] = array(
+    'title' => t('Mailgun region', array(), $options),
+    'description' => t('Select which Mailgun region to use.', array(), $options),
+    'default' => 'https://api.mailgun.net',
+    'group' => 'mailgun',
+  );
+
   $variables[MAILGUN_TEST_MODE] = array(
     'title' => t('Test mode', array(), $options),
     'description' => t('Mailgun will accept the message but will not send it. This is useful for testing purposes.', array(), $options),

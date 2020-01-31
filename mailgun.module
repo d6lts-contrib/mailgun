@@ -13,6 +13,7 @@ define('MAILGUN_ADMIN_PAGE', 'admin/config/services/mailgun');
 
 define('MAILGUN_API_KEY', 'mailgun_api_key');
 define('MAILGUN_DOMAIN', 'mailgun_domain');
+define('MAILGUN_API_ENDPOINT', 'mailgun_api_endpoint');
 define('MAILGUN_TEST_MODE', 'mailgun_test');
 define('MAILGUN_LOG_EMAILS', 'mailgun_log');
 define('MAILGUN_TRACKING', 'mailgun_tracking');
@@ -179,8 +180,8 @@ function mailgun_form_libraries_admin_library_status_form_alter(&$form, &$form_s
  * @param string $key
  *   The Mailgun API key. Leave empty to use the API key saved in database.
  *
- * @return \Mailgun\Mailgun
- *   Mailgun object.
+ * @return \Mailgun\Mailgun|FALSE
+ *   Mailgun object or FALSE if Mailgun settings are not correct.
  */
 function mailgun_get_client($key = '') {
   // Check if the Mailgun PHP library is installed.
@@ -195,7 +196,7 @@ function mailgun_get_client($key = '') {
     return FALSE;
   }
 
-  return Mailgun::create($key);
+  return Mailgun::create($key, variable_get(MAILGUN_API_ENDPOINT, 'https://api.mailgun.net'));
 }
 
 /**
