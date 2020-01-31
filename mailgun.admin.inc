@@ -43,7 +43,7 @@ function mailgun_admin_settings(array $form, array &$form_state) {
   $client = FALSE;
   if (!empty($key)) {
     try {
-      $endpoint = !empty($form_state['values']['mailgun_api_endpoint']) ? $form_state['values']['mailgun_api_endpoint'] : '';
+      $endpoint = !empty($form_state['values'][MAILGUN_API_ENDPOINT]) ? $form_state['values'][MAILGUN_API_ENDPOINT] : '';
       $client = mailgun_get_client($key, $endpoint);
     }
     catch (Exception $e) {
