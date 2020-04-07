@@ -14,6 +14,11 @@ abstract class MailgunFunctionalTestBase extends BrowserTestBase {
   use StringTranslationTrait;
 
   /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
+  /**
    * Modules to enable.
    *
    * @var array
