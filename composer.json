@@ -29,7 +29,7 @@
         "issues": "https://www.drupal.org/project/issues/mailgun",
         "source": "https://git.drupalcode.org/project/mailgun.git"
     },
-    "license": "GPL-2.0+",
+    "license": "GPL-2.0-or-later",
     "minimum-stability": "dev",
     "require": {
         "mailgun/mailgun-php": "~3.0",
