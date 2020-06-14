@@ -229,8 +229,8 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Enable tags by mail key'),
       '#type' => 'checkbox',
       '#default_value' => $config->get('tagging_mailkey'),
-      '#description' => $this->t('Add tag by mail key. See @link for details.', [
-        '@link' => Link::fromTextAndUrl($this->t("Mailgun's tagging documentation"), Url::fromUri('https://documentation.mailgun.com/user_manual.html#tagging', [
+      '#description' => $this->t('Add tag by mail key. See @link for details. Warning: adding tags will automatically add the "List-Unsubscribe" header to e-emails.', [
+        '@link' => Link::fromTextAndUrl($this->t("Mailgun's tagging documentation"), Url::fromUri('https://documentation.mailgun.com/en/latest/user_manual.html#tagging', [
           'attributes' => [
             'onclick' => "target='_blank'",
           ],
