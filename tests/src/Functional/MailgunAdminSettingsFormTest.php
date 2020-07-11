@@ -28,6 +28,13 @@ class MailgunAdminSettingsFormTest extends MailgunFunctionalTestBase {
 
     $this->drupalGet(Url::fromRoute('mailgun.admin_settings_form'));
 
+    // Make sure that "API Key" field is visible and required.
+    $api_key_field = $this->assertSession()->elementExists('css', 'input[name="api_key"]');
+    $this->assertTrue($api_key_field->hasAttribute('required'));
+
+    // Other fields (i.e. "Mailgun Region") should be hidden.
+    $this->assertSession()->elementNotExists('css', 'input[name="api_endpoint"]');
+
     // Test invalid value for API key.
     $this->submitSettingsForm(['api_key' => 'invalid_value'], $this->t("Couldn't connect to the Mailgun API. Please check your API settings."));
 
@@ -39,6 +46,7 @@ class MailgunAdminSettingsFormTest extends MailgunFunctionalTestBase {
 
     // Save additional parameters. Check that all fields available on the form.
     $field_values = [
+      'api_endpoint' => 'https://api.eu.mailgun.net',
       'debug_mode' => TRUE,
       'test_mode' => TRUE,
       'use_theme' => FALSE,

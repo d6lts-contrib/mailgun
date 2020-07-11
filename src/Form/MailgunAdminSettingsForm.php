@@ -64,7 +64,8 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     parent::validateForm($form, $form_state);
 
-    if ($this->mailgunHandler->validateMailgunApiKey($form_state->getValue('api_key')) === FALSE) {
+    $entered_api_key = $form_state->getValue('api_key');
+    if (!empty($entered_api_key) && $this->mailgunHandler->validateMailgunApiKey($entered_api_key) === FALSE) {
       $form_state->setErrorByName('api_key', $this->t("Couldn't connect to the Mailgun API. Please check your API settings."));
     }
   }
@@ -86,18 +87,27 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       ]),
     ];
 
-    $api_key = $config->get('api_key');
     $form['api_key'] = [
       '#title' => $this->t('Mailgun API Key'),
       '#type' => 'textfield',
       '#required' => TRUE,
       '#description' => $this->t('Enter your API key. It should be similar to: @key', ['@key' => 'key-1234567890abcdefghijklmnopqrstu']),
-      '#default_value' => $api_key,
+      '#default_value' => $config->get('api_key'),
     ];
 
+    // Load not-editable configuration object to check actual api key value
+    // including overrides.
+    $not_editable_config = $this->configFactory()->get(MailgunHandlerInterface::CONFIG_NAME);
+
     // Don't show other settings until we don't set API key.
-    if (empty($api_key)) {
+    if (empty($not_editable_config->get('api_key'))) {
       return parent::buildForm($form, $form_state);
+    }
+
+    // If "API Key" is overridden in settings.php it won't be visible in form.
+    // We have to make the field optional and allow configure other settings.
+    if (empty($config->get('api_key')) && !empty($not_editable_config->get('api_key'))) {
+      $form['api_key']['#required'] = FALSE;
     }
 
     $form['working_domain'] = [
