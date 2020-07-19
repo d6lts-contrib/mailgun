@@ -36,13 +36,13 @@ class MailgunAdminSettingsFormTest extends MailgunFunctionalTestBase {
     $this->assertSession()->elementNotExists('css', 'input[name="api_endpoint"]');
 
     // Test invalid value for API key.
-    $this->submitSettingsForm(['api_key' => 'invalid_value'], $this->t("Couldn't connect to the Mailgun API. Please check your API settings."));
+    $this->submitSettingsForm(['api_key' => 'invalid_value'], "Couldn't connect to the Mailgun API. Please check your API settings.");
 
     // Test valid but not working API key.
-    $this->submitSettingsForm(['api_key' => 'key-1234567890notworkingabcdefghijkl'], $this->t("Couldn't connect to the Mailgun API. Please check your API settings."));
+    $this->submitSettingsForm(['api_key' => 'key-1234567890notworkingabcdefghijkl'], "Couldn't connect to the Mailgun API. Please check your API settings.");
 
     // Test valid and working API key.
-    $this->submitSettingsForm(['api_key' => 'key-1234567890workingabcdefghijklmno'], $this->t('The configuration options have been saved.'));
+    $this->submitSettingsForm(['api_key' => 'key-1234567890workingabcdefghijklmno'], 'The configuration options have been saved.');
 
     // Save additional parameters. Check that all fields available on the form.
     $field_values = [
@@ -55,7 +55,7 @@ class MailgunAdminSettingsFormTest extends MailgunFunctionalTestBase {
       'tracking_opens' => 'no',
       'tracking_clicks' => 'yes',
     ];
-    $this->submitSettingsForm($field_values, $this->t('The configuration options have been saved.'));
+    $this->submitSettingsForm($field_values, 'The configuration options have been saved.');
 
     // Rebuild config values after form submit.
     $this->mailgunConfig = $this->config(MailgunHandlerInterface::CONFIG_NAME);
@@ -73,7 +73,7 @@ class MailgunAdminSettingsFormTest extends MailgunFunctionalTestBase {
     foreach ($values as $field_name => $field_value) {
       $this->getSession()->getPage()->fillField($field_name, $field_value);
     }
-    $this->getSession()->getPage()->pressButton($this->t('Save configuration'));
+    $this->getSession()->getPage()->pressButton('Save configuration');
     $this->assertSession()->pageTextContains($result_message);
   }
 
