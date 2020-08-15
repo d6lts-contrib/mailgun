@@ -76,7 +76,7 @@ class SendMailBase extends QueueWorkerBase implements ContainerFactoryPluginInte
     }
 
     if (!$result) {
-      throw new RequeueException('Mailgun: email did not pass through API.');
+      throw new \Exception('Mailgun: email did not pass through API.');
     }
   }
 
