@@ -244,6 +244,12 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
         if (!empty($attachment['filepath']) && file_exists($attachment['filepath'])) {
           $attachments[] = ['filePath' => $attachment['filepath']];
         }
+        elseif (!empty($attachment['filecontent']) && !empty($attachment['filename'])) {
+          $attachments[] = [
+            'fileContent' => $attachment['filecontent'],
+            'filename' => $attachment['filename'],
+          ];
+        }
       }
 
       if (count($attachments) > 0) {
