@@ -10,7 +10,7 @@ use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\mailgun\MailgunHandler;
+use Drupal\mailgun\MailgunHandlerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
@@ -21,9 +21,9 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 class MailgunTestEmailForm extends FormBase {
 
   /**
-   * Drupal\mailgun\MailgunHandler definition.
+   * Drupal\mailgun\MailgunHandlerInterface definition.
    *
-   * @var \Drupal\mailgun\MailgunHandler
+   * @var \Drupal\mailgun\MailgunHandlerInterface
    */
   protected $mailgunHandler;
 
@@ -58,12 +58,12 @@ class MailgunTestEmailForm extends FormBase {
   /**
    * MailgunTestEmailForm constructor.
    */
-  public function __construct(MailgunHandler $mailgunHandler, AccountProxyInterface $user, MailManagerInterface $mailManager, FileSystemInterface $fileSystem, ModuleHandlerInterface $moduleHandler) {
-    $this->mailgunHandler = $mailgunHandler;
+  public function __construct(MailgunHandlerInterface $mailgun_handler, AccountProxyInterface $user, MailManagerInterface $mail_manager, FileSystemInterface $file_system, ModuleHandlerInterface $module_handler) {
+    $this->mailgunHandler = $mailgun_handler;
     $this->user = $user;
-    $this->mailManager = $mailManager;
-    $this->fileSystem = $fileSystem;
-    $this->moduleHandler = $moduleHandler;
+    $this->mailManager = $mail_manager;
+    $this->fileSystem = $file_system;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -90,13 +90,13 @@ class MailgunTestEmailForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    MailgunHandler::status(TRUE);
+    $this->mailgunHandler->moduleStatus(TRUE);
 
     // Display a warning if Mailgun is not a default mailer.
-    $sender = \Drupal::config('mailsystem.settings')->get('defaults.sender');
-    if ($sender != 'mailgun_mail') {
-      $this->messenger()->addMessage(t('Mailgun is not a default Mailsystem plugin. You may update settings at @link.', [
-        '@link' => Link::createFromRoute($this->t('here'), 'mailsystem.settings')->toString()
+    $sender = $this->config('mailsystem.settings')->get('defaults.sender');
+    if (!strstr($sender, 'mailgun_')) {
+      $this->messenger()->addMessage($this->t('Mailgun is not a default Mailsystem plugin. You may update settings at @link.', [
+        '@link' => Link::createFromRoute($this->t('here'), 'mailsystem.settings')->toString(),
       ]), 'warning');
     }
 
@@ -172,7 +172,7 @@ If this e-mail is displayed correctly and delivered sound and safe, congrats! Yo
     ];
 
     if (!empty($form_state->getValue('include_attachment'))) {
-      $params['attachments'][] = $this->fileSystem->realpath('core/misc/druplicon.png');
+      $params['attachments'][] = ['filepath' => $this->fileSystem->realpath('core/misc/druplicon.png')];
     }
 
     // Add CC / BCC values if they are set.
@@ -185,7 +185,7 @@ If this e-mail is displayed correctly and delivered sound and safe, congrats! Yo
 
     $result = $this->mailManager->mail('mailgun', 'test_form_email', $to, $this->user->getPreferredLangcode(), $params, $form_state->getValue('reply_to'), TRUE);
 
-    if ($result['result'] === TRUE) {
+    if (!empty($result)) {
       $this->messenger()->addMessage($this->t('Successfully sent message to %to.', ['%to' => $to]));
     }
     else {

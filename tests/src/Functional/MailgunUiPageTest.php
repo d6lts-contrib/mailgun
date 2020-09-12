@@ -12,6 +12,11 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class MailgunUiPageTest extends MailgunFunctionalTestBase {
 
+  /**
+   * List of Mailgun admin routes.
+   *
+   * @var array
+   */
   private $adminPages = ['mailgun.admin_settings_form', 'mailgun.test_email_form'];
 
   /**
