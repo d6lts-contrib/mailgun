@@ -4,6 +4,7 @@ namespace Drupal\mailgun_mailing_lists\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 use Mailgun\Mailgun;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Mailgun\Exception\HttpClientException;
@@ -101,6 +102,13 @@ class MailingListsAdminForm extends FormBase {
           'description' => $list->getDescription(),
           'created' => $list->getCreatedAt()->format('d-m-Y H:i'),
           'access_level' => $list->getAccessLevel(),
+          'subscribers' => [
+            'data' => [
+              '#title' => $this->t('Members'),
+              '#type' => 'link',
+              '#url' => Url::fromRoute('mailgun_mailing_lists.list', ['list_address' => $list->getAddress()]),
+            ],
+          ],
         ];
       }
       $form['lists'] = [
@@ -113,6 +121,7 @@ class MailingListsAdminForm extends FormBase {
           $this->t('Description'),
           $this->t('Created'),
           $this->t('Access Level'),
+          $this->t('Subscribers'),
         ],
       ];
     }
@@ -150,8 +159,10 @@ class MailingListsAdminForm extends FormBase {
     $name = $form_state->getValue('list_name');
     $address = $form_state->getValue('list_address');
     $lists = $this->mailgunClient->mailingList();
+    $description = $form_state->getValue('description');
+    $description = $description ? $description : NULL;
     try {
-      $lists->create($address, $name, $form_state->getValue('description'), $form_state->getValue('access_level'));
+      $lists->create($address, $name, $description, $form_state->getValue('access_level'));
       $this->messenger()->addMessage($this->t('List @name was successfully created', ['@name' => $name]));
     }
     catch (HttpClientException $e) {
