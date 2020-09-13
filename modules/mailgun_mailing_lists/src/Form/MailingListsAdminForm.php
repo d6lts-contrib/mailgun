@@ -144,7 +144,9 @@ class MailingListsAdminForm extends FormBase {
     $lists = $this->mailgunClient->mailingList();
     try {
       if ($lsit = $lists->show($address)) {
-        $form_state->setErrorByName('list_address', $this->t('List with the same address exists'));
+        $form_state->setErrorByName('list_address', $this->t('The list %list already exists.', [
+          '%list' => $address,
+        ]));
       }
     }
     catch (HttpClientException $e) {
@@ -158,15 +160,17 @@ class MailingListsAdminForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $name = $form_state->getValue('list_name');
     $address = $form_state->getValue('list_address');
-    $lists = $this->mailgunClient->mailingList();
     $description = $form_state->getValue('description');
     $description = $description ? $description : $name;
+
     try {
-      $lists->create($address, $name, $description, $form_state->getValue('access_level'));
-      $this->messenger()->addMessage($this->t('List @name was successfully created', ['@name' => $name]));
+      $this->mailgunClient->mailingList()->create($address, $name, $description, $form_state->getValue('access_level'));
+      $this->messenger()->addMessage($this->t('The list %name has been successfully created.', ['%name' => $name]));
     }
     catch (HttpClientException $e) {
-      $this->messenger()->addMessage($this->t('Error during creation of the list'), 'error');
+      $this->messenger()->addMessage($this->t('The list could not be created: @message.', [
+        '@message' => $e->getMessage(),
+      ]), 'error');
     }
   }
 
