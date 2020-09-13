@@ -160,7 +160,7 @@ class MailingListsAdminForm extends FormBase {
     $address = $form_state->getValue('list_address');
     $lists = $this->mailgunClient->mailingList();
     $description = $form_state->getValue('description');
-    $description = $description ? $description : NULL;
+    $description = $description ? $description : $name;
     try {
       $lists->create($address, $name, $description, $form_state->getValue('access_level'));
       $this->messenger()->addMessage($this->t('List @name was successfully created', ['@name' => $name]));
