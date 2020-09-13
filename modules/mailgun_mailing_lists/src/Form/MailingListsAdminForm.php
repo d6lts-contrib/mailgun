@@ -4,15 +4,13 @@ namespace Drupal\mailgun_mailing_lists\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
+use Drupal\Core\Link;
 use Mailgun\Mailgun;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Mailgun\Exception\HttpClientException;
 
 /**
  * Class MailingListsAdminForm.
- *
- * @package Drupal\mailgun_mailing_lists\Form
  */
 class MailingListsAdminForm extends FormBase {
 
@@ -63,7 +61,7 @@ class MailingListsAdminForm extends FormBase {
       '#description' => $this->t('Enter the new list address'),
     ];
     $form['create_new_list']['list_name'] = [
-      '#title' => $this->t('New list name'),
+      '#title' => $this->t('List name'),
       '#type' => 'textfield',
       '#required' => TRUE,
       '#description' => $this->t('Enter the new list name'),
@@ -87,7 +85,7 @@ class MailingListsAdminForm extends FormBase {
 
     $form['create_new_list']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Create new list'),
+      '#value' => $this->t('Create'),
     ];
 
     $mailgun = $this->mailgunClient;
@@ -96,38 +94,33 @@ class MailingListsAdminForm extends FormBase {
     if (!empty($lists)) {
       foreach ($lists as $list) {
         $rows[] = [
-          'name' => $list->getName(),
           'address' => $list->getAddress(),
-          'members' => $list->getMembersCount(),
+          'name' => $list->getName(),
+          'members' => $list->getMembersCount() > 0 ? $this->t('@count (@list)', [
+            '@count' => $list->getMembersCount(),
+            '@list' => Link::createFromRoute($this->t('list'), 'mailgun_mailing_lists.list', ['list_address' => $list->getAddress()])->toString(),
+          ]) : $list->getMembersCount(),
           'description' => $list->getDescription(),
-          'created' => $list->getCreatedAt()->format('d-m-Y H:i'),
           'access_level' => $list->getAccessLevel(),
-          'subscribers' => [
-            'data' => [
-              '#title' => $this->t('Members'),
-              '#type' => 'link',
-              '#url' => Url::fromRoute('mailgun_mailing_lists.list', ['list_address' => $list->getAddress()]),
-            ],
-          ],
+          'created' => $list->getCreatedAt()->format('d-m-Y H:i'),
         ];
       }
       $form['lists'] = [
         '#theme' => 'table',
         '#rows' => $rows,
         '#header' => [
-          $this->t('Name'),
           $this->t('Address'),
-          $this->t('members'),
+          $this->t('Name'),
+          $this->t('Members'),
           $this->t('Description'),
-          $this->t('Created'),
           $this->t('Access Level'),
-          $this->t('Subscribers'),
+          $this->t('Created'),
         ],
       ];
     }
     else {
       $form['lists'] = [
-        '#markup' => $this->t('No Lists Found.'),
+        '#markup' => $this->t('No Mailing lists found.'),
       ];
     }
 
@@ -143,7 +136,7 @@ class MailingListsAdminForm extends FormBase {
     $address = $form_state->getValue('list_address');
     $lists = $this->mailgunClient->mailingList();
     try {
-      if ($lsit = $lists->show($address)) {
+      if ($lists->show($address)) {
         $form_state->setErrorByName('list_address', $this->t('The list %list already exists.', [
           '%list' => $address,
         ]));

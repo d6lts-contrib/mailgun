@@ -9,29 +9,34 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Mailgun\Mailgun;
 
 /**
- * Class MailingListSubscribe.
+ * Class MailingListSubscribeForm.
  */
-class MailingListSubscribe extends FormBase {
+class MailingListSubscribeForm extends FormBase {
 
   /**
-   * Mailgun\Mailgun definition.
+   * Mailgun client.
    *
    * @var \Mailgun\Mailgun
    */
-  protected $mailgunMailgunClient;
+  protected $mailgunClient;
 
   /**
-   * String definition.
+   * Mailing list address.
    *
-   * @var \Mailgun\Mailgun
+   * @var string
    */
   protected $listAddress;
 
   /**
-   * Constructs a new MailingListSubscribe object.
+   * Constructs a new MailingListSubscribeForm object.
+   *
+   * @param \Mailgun\Mailgun $mailgun_client
+   *   The Mailgun client.
+   * @param string $list_address
+   *   The list address.
    */
-  public function __construct(Mailgun $mailgun_mailgun_client, $list_address = NULL) {
-    $this->mailgunMailgunClient = $mailgun_mailgun_client;
+  public function __construct(Mailgun $mailgun_client, $list_address = NULL) {
+    $this->mailgunClient = $mailgun_client;
     $this->listAddress = $list_address;
   }
 
@@ -48,7 +53,7 @@ class MailingListSubscribe extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'mailing_list_subscribe';
+    return 'mailgun_mailing_list_subscribe';
   }
 
   /**
@@ -71,10 +76,9 @@ class MailingListSubscribe extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    parent::validateForm($form, $form_state);
     $email = $form_state->getValue('email');
     try {
-      if ($this->mailgunMailgunClient->mailingList()->member()->show($this->listAddress, $email)) {
+      if ($this->mailgunClient->mailingList()->member()->show($this->listAddress, $email)) {
         $form_state->setErrorByName('name', $this->t("You are already subscribed to this list."));
       }
     }
@@ -89,13 +93,12 @@ class MailingListSubscribe extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $email = $form_state->getValue('email');
     try {
-      $this->mailgunMailgunClient->mailingList()->member()->create($this->listAddress, $email);
+      $this->mailgunClient->mailingList()->member()->create($this->listAddress, $email, $email);
       $this->messenger()->addMessage($this->t("You've successfully subscribed."));
     }
     catch (HttpClientException $e) {
       $this->messenger()->addMessage($this->t("Error occurred. Please try again later."));
     }
-
   }
 
 }

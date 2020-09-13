@@ -5,7 +5,6 @@ namespace Drupal\mailgun\Plugin\QueueWorker;
 use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Queue\QueueWorkerBase;
-use Drupal\Core\Queue\RequeueException;
 use Drupal\mailgun\MailgunHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;

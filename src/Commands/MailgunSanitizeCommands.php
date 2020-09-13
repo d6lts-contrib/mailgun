@@ -58,6 +58,8 @@ class MailgunSanitizeCommands extends DrushCommands implements SanitizePluginInt
   }
 
   /**
+   * Prepares messages.
+   *
    * @hook on-event sql-sanitize-confirms
    */
   public function messages(&$messages, InputInterface $input) {
