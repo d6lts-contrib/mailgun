@@ -287,6 +287,7 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
     $tracking = TRUE;
     $tracking_exception = $this->mailgunConfig->get('tracking_exception');
     if (!empty($tracking_exception)) {
+      $tracking_exception = str_replace(["\r\n", "\r"], "\n", $tracking_exception);
       $tracking = !in_array($message['module'] . ':' . $message['key'], explode("\n", $tracking_exception));
     }
     return $tracking;
