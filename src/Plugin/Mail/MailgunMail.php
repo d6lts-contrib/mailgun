@@ -104,7 +104,7 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
         '#theme' => isset($message['params']['theme']) ? $message['params']['theme'] : 'mailgun',
         '#message' => $message,
       ];
-      $message['body'] = $this->renderer->renderRoot($render);
+      $message['body'] = $this->renderer->renderPlain($render);
     }
 
     return $message;
