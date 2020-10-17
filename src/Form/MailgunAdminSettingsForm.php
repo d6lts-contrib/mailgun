@@ -11,9 +11,7 @@ use Drupal\mailgun\MailgunHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class MailgunAdminSettingsForm.
- *
- * @package Drupal\mailgun\Form
+ * Provides Mailgun configuration form.
  */
 class MailgunAdminSettingsForm extends ConfigFormBase {
 

@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Mailgun\Exception\HttpClientException;
 
 /**
- * Class MailingListsAdminForm.
+ * Provides admin form for Mailgun lists management.
  */
 class MailingListsAdminForm extends FormBase {
 

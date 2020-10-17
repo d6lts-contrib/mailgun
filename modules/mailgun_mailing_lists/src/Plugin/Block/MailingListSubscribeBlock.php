@@ -58,6 +58,8 @@ class MailingListSubscribeBlock extends BlockBase implements ContainerFactoryPlu
    *   The plugin implementation definition.
    * @param \Mailgun\Mailgun $mailgun_client
    *   The Mailgun client.
+   * @param \Drupal\Core\Form\FormBuilderInterface $form_builder
+   *   The form builder.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, Mailgun $mailgun_client, FormBuilderInterface $form_builder) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);

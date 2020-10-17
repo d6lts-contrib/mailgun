@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
 use Mailgun\Exception\HttpClientException;
 
 /**
- * Class MailingListController.
+ * Provides page callbacks for Mailgun Mailing Lists module.
  */
 class MailingListController extends ControllerBase {
 

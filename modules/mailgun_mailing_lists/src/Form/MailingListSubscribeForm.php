@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Mailgun\Mailgun;
 
 /**
- * Class MailingListSubscribeForm.
+ * Provides list subscription form.
  */
 class MailingListSubscribeForm extends FormBase {
 

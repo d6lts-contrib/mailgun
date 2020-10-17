@@ -285,10 +285,10 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
    */
   protected function checkTracking(array $message) {
     $tracking = TRUE;
-    $tracking_exception = $this->mailgunConfig->get('tracking_exception');
-    if (!empty($tracking_exception)) {
-      $tracking_exception = str_replace(["\r\n", "\r"], "\n", $tracking_exception);
-      $tracking = !in_array($message['module'] . ':' . $message['key'], explode("\n", $tracking_exception));
+    $exceptions = $this->mailgunConfig->get('tracking_exception');
+    if (!empty($exceptions)) {
+      $exceptions = str_replace(["\r\n", "\r"], "\n", $exceptions);
+      $tracking = !in_array($message['module'] . ':' . $message['key'], explode("\n", $exceptions));
     }
     return $tracking;
   }
