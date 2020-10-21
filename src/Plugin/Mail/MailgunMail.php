@@ -9,7 +9,6 @@ use Drupal\Core\Queue\QueueFactory;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\mailgun\MailgunHandlerInterface;
 use Html2Text\Html2Text;
-use Drupal\Component\Utility\Html;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -98,6 +97,11 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
       $message['body'] = check_markup($message['body'], $format, $message['langcode']);
     }
 
+    // Skip theme formatting if the message does not support HTML.
+    if (isset($message['params']['html']) && !$message['params']['html']) {
+      return $message;
+    }
+
     // Wrap body with theme function.
     if ($this->mailgunConfig->get('use_theme')) {
       $render = [
@@ -176,15 +180,20 @@ class MailgunMail implements MailInterface, ContainerFactoryPluginInterface {
       'from' => $message['headers']['From'],
       'to' => $message['to'],
       'subject' => $message['subject'],
-      'text' => Html::escape($message['body']),
       'html' => $message['body'],
     ];
 
+    // Remove HTML version if the message does not support HTML.
+    if (isset($message['params']['html']) && !$message['params']['html']) {
+      unset($mailgun_message['html']);
+    }
+
+    // Set text version of the message.
     if (isset($message['plain'])) {
       $mailgun_message['text'] = $message['plain'];
     }
     else {
-      $converter = new Html2Text($message['body']);
+      $converter = new Html2Text($message['body'], ['width' => 0]);
       $mailgun_message['text'] = $converter->getText();
     }
 
