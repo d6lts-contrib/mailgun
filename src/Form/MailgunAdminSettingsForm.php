@@ -99,7 +99,9 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Mailgun API Key'),
       '#type' => 'textfield',
       '#required' => TRUE,
-      '#description' => $this->t('Enter your API key. It should be similar to: @key', ['@key' => 'key-1234567890abcdefghijklmnopqrstu']),
+      '#description' => $this->t('Enter your @link.', [
+        '@link' => Link::fromTextAndUrl($this->t('Private API key'), Url::fromUri('https://app.mailgun.com/app/account/security/api_keys'))->toString(),
+      ]),
       '#default_value' => $config->get('api_key'),
     ];
 
@@ -231,7 +233,7 @@ class MailgunAdminSettingsForm extends ConfigFormBase {
       '#type' => 'select',
       '#options' => $options,
       '#default_value' => $config->get('format_filter'),
-      '#description' =>  $this->t('@text_format to use to render the message. @recommendation', [
+      '#description' => $this->t('@text_format to use to render the message. @recommendation', [
         '@text_format' => Link::fromTextAndUrl($this->t('Text format'), Url::fromRoute('filter.admin_overview'))->toString(),
         '@recommendation' => $recommendation,
       ]),
